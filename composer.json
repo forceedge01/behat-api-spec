@@ -1,0 +1,22 @@
+{
+    "require": {
+        "behat/behat": "~3.5",
+        "imbo/behat-api-extension": "~2.3",
+        "behat/mink-goutte-driver": "^1.2"
+    },
+    "require-dev": {
+        "genesis/behat-fail-aid": "~3.4.0",
+        "behat/mink-extension": "*",
+        "ciaranmcnulty/behat-localwebserverextension": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Genesis\\BehatApiSpec\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Genesis\\ApiSpecTests\\": "tests/"
+        }
+    }
+}

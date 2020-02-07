@@ -1,0 +1,43 @@
+default:
+  suites:
+    default:
+      paths:
+        - tests/Features/
+      contexts:
+        - Genesis\BehatApiSpec\Context\ApiSpecContext
+        - FailAid\Context\FailureContext
+  extensions:
+    Imbo\BehatApiExtension: ~
+    Cjm\Behat\LocalWebserverExtension:
+      host : localhost   # defaults to 'localhost'
+      port : 8090            # defaults to '8000'
+      docroot: app     # defaults to '%paths.base%/web'
+    Genesis\BehatApiSpec\Extension:
+      endpoint: http://localhost:8090/index.php
+      specMappings:
+        endpoint: \Genesis\ApiSpecTests\Features\ApiSpec\Endpoint\
+        schema: \Genesis\ApiSpecTests\Features\ApiSpec\Schema\
+    FailAid\Extension:
+      screenshot:
+        directory: ./features/failures
+        mode: default
+        autoClean: false
+        size: 1444x1280
+        # hostDirectory: /home/abdul/Projects/personal/behat-fail-aid/features/failures
+        hostUrl: http://ci/failures/$USER/
+      debugBarSelectors:
+        message: '#debugBar .message'
+        queries: '#debugBar .queries'
+      siteFilters:
+        '/images/': 'http://dev.environment/images/'
+        '/js/': 'http://dev.environment/js/'
+      trackJs:
+        errors: true
+        warns: true
+        logs: true
+        trim: 1000
+    Behat\MinkExtension:
+      base_url: 'http://localhost:8111'
+      sessions:
+        default:
+          goutte: ~
