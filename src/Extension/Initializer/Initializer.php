@@ -27,6 +27,7 @@ class Initializer implements ContextInitializer
     {
         if ($context instanceof ApiSpecContext) {
             $context::setSpecMappings($this->specMappings);
+            $context::registerInternalTypes();
         }
     }
 }

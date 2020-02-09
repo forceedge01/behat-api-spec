@@ -13,6 +13,10 @@ interface Endpoint
     const TYPE_ANY = 'any';
     const TYPE_OBJECT = 'object';
     const TYPE_ARRAY = 'array';
+    const TYPE_DATE = 'date';
+    const TYPE_DATETIME = 'datetime';
+    const TYPE_ENUM = 'enum';
+    const TYPE_CALLBACK = 'callback';
 
     public static function getEndpoint(): string;
 

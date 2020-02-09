@@ -2,7 +2,8 @@
     "require": {
         "behat/behat": "~3.5",
         "imbo/behat-api-extension": "~2.3",
-        "behat/mink-goutte-driver": "^1.2"
+        "behat/mink-goutte-driver": "^1.2",
+        "phpunit/phpunit": "8.0"
     },
     "require-dev": {
         "genesis/behat-fail-aid": "~3.4.0",

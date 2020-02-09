@@ -23,59 +23,32 @@ class User implements Endpoint
     {
         return [
             200 => [
-                'success' => [
-                    'type' => self::TYPE_BOOLEAN,
-                    'optional' => false,
-                ],
-                'data' => [
-                    'type' => self::TYPE_OBJECT,
-                    'optional' => false,
-                    'schema' => [
-                        'count' => [
-                            'type' => self::TYPE_INTEGER,
-                            'optional' => false,
-                            'min' => false,
-                            'max' => false,
-                        ],
-                        'users' => [
-                            'type' => self::TYPE_OBJECT,
-                            'optional' => false,
-                            'schema' => [
-                                'name' => [
-                                    'type' => self::TYPE_STRING,
-                                    'optional' => false,
-                                    'pattern' => false,
-                                ],
-                                'dob' => [
-                                    'type' => self::TYPE_STRING,
-                                    'optional' => false,
-                                    'pattern' => false,
-                                ],
-                                'smoker' => [
-                                    'type' => self::TYPE_BOOLEAN,
-                                    'optional' => false,
-                                ],
-                                'hobbies' => [
-                                    'type' => self::TYPE_ARRAY,
-                                    'optional' => false,
-                                    'schema' => [
-                                        '0' => [
-                                            'type' => self::TYPE_STRING,
-                                            'optional' => false,
-                                            'pattern' => false,
-                                        ],
-                                        '1' => [
-                                            'type' => self::TYPE_STRING,
-                                            'optional' => false,
-                                            'pattern' => false,
-                                        ],
-                                        '2' => [
-                                            'type' => self::TYPE_STRING,
-                                            'optional' => false,
-                                            'pattern' => false,
-                                        ],
-                                    ],
-                                ],
+                'headers' => [],
+                'body' => [
+                    'name' => [
+                        'type' => self::TYPE_STRING,
+                        'optional' => false,
+                        'pattern' => null,
+                    ],
+                    'address' => [
+                        'type' => self::TYPE_ARRAY,
+                        'optional' => false,
+                        'schema' => [
+                            '0' => [
+                                'type' => self::TYPE_STRING,
+                                'optional' => false,
+                                'pattern' => null,
+                            ],
+                            'jug' => [
+                                'type' => self::TYPE_INTEGER,
+                                'optional' => false,
+                                'min' => null,
+                                'max' => null,
+                            ],
+                            '1' => [
+                                'type' => self::TYPE_STRING,
+                                'optional' => false,
+                                'pattern' => null,
                             ],
                         ],
                     ],
