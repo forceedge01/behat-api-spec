@@ -49,10 +49,11 @@ class ApiSpecContext implements Context
 
     /**
      * @Then I expect a :statusCode :apiSpec response expecting:
+     * @Then I expect a :statusCode :apiSpec response
      * @param mixed $statusCode
      * @param mixed $apiSpec
      */
-    public function validateResponse($statusCode, $apiSpec): void
+    public function validateResponse($statusCode, $apiSpec, PyStringNode $expectedResponse = null): void
     {
         $apiSpec = $this->getApiSpecEndpointClass($apiSpec);
 
@@ -81,6 +82,10 @@ class ApiSpecContext implements Context
                 json_decode(RequestHandler::getResponseBody(), true),
                 $statusSchema['body']
             );
+        }
+
+        if ($expectedResponse) {
+            Assert::assertSame($expectedResponse, RequestHandler::getResponseBody());
         }
     }
 

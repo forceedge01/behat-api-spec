@@ -11,11 +11,5 @@ Feature:
             """
 
             """
-        Then I expect a 200 "User" response expecting:
-            """
-            {
-                "success": true,
-                "data": [{"name": "Abdul Wahhab Qureshi"}]
-            }
-            """
+        Then I expect a 200 "User" response
         And an undefined step
