@@ -12,4 +12,11 @@ Feature:
 
             """
         Then I expect a 200 "User" response
-        And an undefined step
+
+    Scenario:
+        When I make a GET request to "User" endpoint with query string "exception=1"
+        Then I expect a 500 "User" response
+
+    Scenario:
+        When I make a GET request to "User" endpoint with query string "test=1"
+        Then I expect a 201 "User" response

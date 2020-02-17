@@ -12,6 +12,13 @@ class RequestHandler
 {
     private static $response;
 
+    private static $baseUrl;
+
+    public static function setBaseUrl(string $baseUrl)
+    {
+        self::$baseUrl = $baseUrl;
+    }
+
     public static function sendRequest(string $method, string $endpoint, array $headers, string $body): void
     {
         self::$response = self::getClient()->send(
@@ -41,7 +48,7 @@ class RequestHandler
 
     private static function createRequest(string $method, string $endpoint, array $headers, string $body): RequestInterface
     {
-        $request = new Request($method, 'http://localhost:8090/index.php' . $endpoint);
+        $request = new Request($method, self::$baseUrl . $endpoint);
 
         foreach ($headers as $header => $value) {
             $request->withHeader($header, $value);

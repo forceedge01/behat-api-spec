@@ -13,7 +13,7 @@ default:
       port : 8090            # defaults to '8000'
       docroot: app     # defaults to '%paths.base%/web'
     Genesis\BehatApiSpec\Extension:
-      endpoint: http://localhost:8090/index.php
+      baseUrl: http://localhost:8090/index.php
       specMappings:
         endpoint: \Genesis\ApiSpecTests\Features\ApiSpec\Endpoint\
         schema: \Genesis\ApiSpecTests\Features\ApiSpec\Schema\

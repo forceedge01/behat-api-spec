@@ -59,7 +59,7 @@ class Extension implements ExtensionInterface
     {
         $builder
             ->children()
-                ->scalarNode('endpoint')->isRequired()->end()
+                ->scalarNode('baseUrl')->isRequired()->end()
                 ->arrayNode('specMappings')
                     ->children()
                         ->scalarNode('endpoint')->isRequired()->end()
@@ -75,7 +75,7 @@ class Extension implements ExtensionInterface
      */
     public function load(ContainerBuilder $container, array $config)
     {
-        $container->setParameter('genesis.apispec.config.endpoint', $config['endpoint']);
+        $container->setParameter('genesis.apispec.config.baseUrl', $config['baseUrl']);
 
         if (!isset($config['specMappings'])) {
             $config['specMappings'] = [];
@@ -83,6 +83,7 @@ class Extension implements ExtensionInterface
         $container->setParameter('genesis.apispec.config.specMappings', $config['specMappings']);
 
         $definition = new Definition(Initializer::class, [
+            '%genesis.apispec.config.baseUrl%',
             '%genesis.apispec.config.specMappings%',
         ]);
         $definition->addTag(ContextExtension::INITIALIZER_TAG);

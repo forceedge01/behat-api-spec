@@ -11,22 +11,20 @@ use Genesis\BehatApiSpec\Context\ApiSpecContext;
  */
 class Initializer implements ContextInitializer
 {
-    /**
-     * @var array
-     */
     private $specMappings = [];
 
+    private $baseUrl;
 
-    public function __construct(array $specMappings = [])
+    public function __construct(string $baseUrl, array $specMappings = [])
     {
         $this->specMappings = $specMappings;
+        $this->baseUrl = $baseUrl;
     }
-
 
     public function initializeContext(Context $context)
     {
         if ($context instanceof ApiSpecContext) {
-            $context::setSpecMappings($this->specMappings);
+            $context::setSpecOptions($this->baseUrl, $this->specMappings);
             $context::registerInternalTypes();
         }
     }

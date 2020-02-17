@@ -13,15 +13,19 @@ use Genesis\BehatApiSpec\Service\SchemaGenerator;
 use Genesis\BehatApiSpec\Service\TypeValidator;
 use Genesis\BehatApiSpec\Validators;
 use GuzzleHttp\Psr7\Request;
+use PHPUnit\Framework\Assert;
 
 class ApiSpecContext implements Context
 {
     private static $mappings;
 
+    private static $schemas;
+
     private $headers = [];
 
-    public static function setSpecMappings(array $mappings): void
+    public static function setSpecOptions(string $baseUrl, array $mappings): void
     {
+        RequestHandler::setBaseUrl($baseUrl);
         self::$mappings = $mappings;
     }
 
@@ -48,6 +52,48 @@ class ApiSpecContext implements Context
     }
 
     /**
+     * @When I make a :method request to :arg1 endpoint with body:
+     * @When I make a :method request to :arg1 endpoint with query string :queryString
+     * @param mixed $method
+     * @param mixed $endpoint
+     */
+    public function sendRequest($method, $endpoint, PyStringNode $body = null, string $queryString = null): void
+    {
+        $endpoint = $this->getApiSpecEndpointClass($endpoint);
+        $headers = array_merge($this->headers, $endpoint::getHeaders());
+        $url = $endpoint::getEndpoint() . $queryString ? '?' . $queryString : '';
+        RequestHandler::sendRequest($method, $url, $headers, (string) $body);
+        $this->resetState();
+    }
+
+    /**
+     * @AfterSuite
+     */
+    public static function generateSchema()
+    {
+        if (self::$schemas) {
+            echo 'Appending to schema files:' . PHP_EOL;
+            $schemaString = '';
+            foreach (self::$schemas as $apiSpec => $details) {
+                $schemaString = SchemaGenerator::createSchemaHandlerFunction($details);
+                echo $apiSpec . PHP_EOL;
+                foreach ($details as $statusCode => $schema) {
+                    echo $statusCode . ' ';
+                    $schemaString .= PHP_EOL . PHP_EOL;
+                    $schemaString .= SchemaGenerator::suggestSchema($schema, $statusCode);
+                }
+                SchemaGenerator::appendSchemaToEndpointSpec($apiSpec, $schemaString);
+                echo PHP_EOL . PHP_EOL;
+            }
+        }
+    }
+
+    public function resetState()
+    {
+        $this->headers = [];
+    }
+
+    /**
      * @Then I expect a :statusCode :apiSpec response expecting:
      * @Then I expect a :statusCode :apiSpec response
      * @param mixed $statusCode
@@ -55,6 +101,7 @@ class ApiSpecContext implements Context
      */
     public function validateResponse($statusCode, $apiSpec, PyStringNode $expectedResponse = null): void
     {
+        $statusCode = (int) $statusCode;
         $apiSpec = $this->getApiSpecEndpointClass($apiSpec);
 
         if (!(in_array(EndPoint::class, class_implements($apiSpec)))) {
@@ -63,16 +110,22 @@ class ApiSpecContext implements Context
 
         if (!method_exists($apiSpec, 'getSchema')) {
             echo sprintf('Scaffolding schema for endpoint: %s...', $apiSpec);
-            $schema = SchemaGenerator::scaffoldSchema(RequestHandler::getResponseBody());
-            $schemaString = SchemaGenerator::suggestSchema($apiSpec, $schema, RequestHandler::getStatusCode());
-            SchemaGenerator::appendSchemaToEndpointSpec($apiSpec, $schemaString);
+            if (!isset(self::$schemas[$apiSpec][RequestHandler::getStatusCode()])) {
+                $schema = SchemaGenerator::scaffoldSchema(RequestHandler::getResponseBody());
+                self::$schemas[$apiSpec][RequestHandler::getStatusCode()] = $schema;
+            }
         } else {
-            echo 'validating....';
             $schema = $apiSpec::getSchema();
             if (!isset($schema[RequestHandler::getStatusCode()])) {
                 echo sprintf('Schema for status code %s not defined...', RequestHandler::getStatusCode());
             }
             $statusSchema = $schema[RequestHandler::getStatusCode()];
+
+            Assert::assertSame(
+                $statusCode,
+                RequestHandler::getStatusCode(),
+                sprintf('Expected status code %d but got %d', $statusCode, RequestHandler::getStatusCode())
+            );
 
             if (isset($statusSchema['headers'])) {
                 TypeValidator::assertHeaders($statusSchema['headers'], RequestHandler::getHeaders());
@@ -117,24 +170,6 @@ class ApiSpecContext implements Context
     private function getApiSpecEndpointClass(string $class): string
     {
         return self::$mappings['endpoint'] . $class;
-    }
-
-    /**
-     * @When I make a :method request to :arg1 endpoint with body:
-     * @param mixed $method
-     * @param mixed $endpoint
-     */
-    public function sendRequest($method, $endpoint, PyStringNode $body): void
-    {
-        $endpoint = $this->getApiSpecEndpointClass($endpoint);
-        $headers = array_merge($this->headers, $endpoint::getHeaders());
-        RequestHandler::sendRequest($method, $endpoint::getEndpoint(), $headers, (string) $body);
-        $this->resetState();
-    }
-
-    public function resetState()
-    {
-        $this->headers = [];
     }
 }
 
