@@ -23,6 +23,10 @@ class TypeValidator
     public static function assertHeaders(array $expectedHeaders, array $actualHeaders): void
     {
         foreach ($expectedHeaders as $expectedHeader => $headerDetail) {
+            if (!isset($actualHeaders[$expectedHeader])) {
+                throw new Exception(sprintf('Validation failed for header %s, error: Header not set.', $expectedHeader));
+            }
+
             try {
                 self::assertValue($actualHeaders[$expectedHeader][0], $expectedHeader, $headerDetail);
             } catch (Exception $e) {
