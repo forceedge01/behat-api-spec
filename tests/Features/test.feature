@@ -15,7 +15,10 @@ Feature:
 
     Scenario:
         When I make a GET request to "User" endpoint with query string "exception=1"
-        Then I expect a 500 "User" response
+        Then I expect a 500 "User" response expecting:
+            """
+            {"success":true,"name":"Wahab Qureshi","address":{"0":"first","jug":15,"1":"third"}}
+            """
 
     Scenario:
         When I make a GET request to "User" endpoint with query string "test=1"

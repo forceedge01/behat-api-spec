@@ -80,12 +80,20 @@ class ApiSpecContext implements Context
                 foreach ($details as $statusCode => $schema) {
                     echo $statusCode . ' ';
                     $schemaString .= PHP_EOL . PHP_EOL;
-                    $schemaString .= SchemaGenerator::suggestSchema($schema, $statusCode);
+                    $schemaString .= SchemaGenerator::suggestSchema($schema['body'], $schema['headers'], $statusCode);
                 }
                 SchemaGenerator::appendSchemaToEndpointSpec($apiSpec, $schemaString);
                 echo PHP_EOL . PHP_EOL;
             }
         }
+    }
+
+    /**
+     * @AfterScenario
+     */
+    public function resetStatusCode()
+    {
+        RequestHandler::$overridingStatusCode = null;
     }
 
     public function resetState()
@@ -111,34 +119,36 @@ class ApiSpecContext implements Context
         if (!method_exists($apiSpec, 'getSchema')) {
             echo sprintf('Scaffolding schema for endpoint: %s...', $apiSpec);
             if (!isset(self::$schemas[$apiSpec][RequestHandler::getStatusCode()])) {
-                $schema = SchemaGenerator::scaffoldSchema(RequestHandler::getResponseBody());
+                $schema['body'] = SchemaGenerator::scaffoldSchema(RequestHandler::getResponseBody());
+                $schema['headers'] = SchemaGenerator::scaffoldHeaderSchema(RequestHandler::getHeaders());
                 self::$schemas[$apiSpec][RequestHandler::getStatusCode()] = $schema;
             }
         } else {
             $schema = $apiSpec::getSchema();
             if (!isset($schema[RequestHandler::getStatusCode()])) {
-                echo sprintf('Schema for status code %s not defined...', RequestHandler::getStatusCode());
+                echo sprintf('WARNING: Schema for status code %s not defined...', RequestHandler::getStatusCode());
+            } else {
+                $statusSchema = $schema[RequestHandler::getStatusCode()];
+
+                Assert::assertSame(
+                    $statusCode,
+                    RequestHandler::getStatusCode(),
+                    sprintf('Expected status code %d but got %d', $statusCode, RequestHandler::getStatusCode())
+                );
+
+                if (isset($statusSchema['headers'])) {
+                    TypeValidator::assertHeaders($statusSchema['headers'], RequestHandler::getHeaders());
+                }
+
+                $this->validate(
+                    json_decode(RequestHandler::getResponseBody(), true),
+                    $statusSchema['body']
+                );
             }
-            $statusSchema = $schema[RequestHandler::getStatusCode()];
-
-            Assert::assertSame(
-                $statusCode,
-                RequestHandler::getStatusCode(),
-                sprintf('Expected status code %d but got %d', $statusCode, RequestHandler::getStatusCode())
-            );
-
-            if (isset($statusSchema['headers'])) {
-                TypeValidator::assertHeaders($statusSchema['headers'], RequestHandler::getHeaders());
-            }
-
-            $this->validate(
-                json_decode(RequestHandler::getResponseBody(), true),
-                $statusSchema['body']
-            );
         }
 
         if ($expectedResponse) {
-            Assert::assertSame($expectedResponse, RequestHandler::getResponseBody());
+            Assert::assertSame($expectedResponse->getRaw(), RequestHandler::getResponseBody());
         }
     }
 

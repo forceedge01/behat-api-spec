@@ -4,8 +4,9 @@ namespace Genesis\BehatApiSpec\Service;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
 
 class RequestHandler
@@ -14,6 +15,8 @@ class RequestHandler
 
     private static $baseUrl;
 
+    public static $overridingStatusCode;
+
     public static function setBaseUrl(string $baseUrl)
     {
         self::$baseUrl = $baseUrl;
@@ -21,9 +24,14 @@ class RequestHandler
 
     public static function sendRequest(string $method, string $endpoint, array $headers, string $body): void
     {
-        self::$response = self::getClient()->send(
-            self::createRequest($method, $endpoint, $headers, $body)
-        );
+        try {
+            self::$response = self::getClient()->send(
+                self::createRequest($method, $endpoint, $headers, $body)
+            );
+        } catch (ServerException $e) {
+            self::$overridingStatusCode = 500;
+            // Do nothing.
+        }
     }
 
     public static function getResponseBody(): string
@@ -33,6 +41,10 @@ class RequestHandler
 
     public static function getStatusCode(): int
     {
+        if (self::$overridingStatusCode) {
+            return self::$overridingStatusCode;
+        }
+
         return self::$response->getStatusCode();
     }
 

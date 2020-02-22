@@ -6,11 +6,24 @@ use ReflectionClass;
 
 class SchemaGenerator
 {
+    public static function scaffoldHeaderSchema(array $headers): array
+    {
+        $formattedheaders = [];
+
+        foreach ($headers as $header => $value) {
+            $formattedheaders[$header] = [
+                'type' => gettype($value[0]),
+                'value' => $value[0],
+            ];
+        }
+
+        return $formattedheaders;
+    }
+
     public static function scaffoldSchema(string $body): array
     {
         $response = json_decode($body, true);
 
-        $schema = [];
         foreach ($response as $property => $value) {
             $schema[$property] = ['type' => gettype($value)];
             switch (gettype($value)) {
@@ -42,14 +55,16 @@ class SchemaGenerator
         return $getSchemaMethod;
     }
 
-    public static function suggestSchema(array $schema, int $statusCode): string
+    public static function suggestSchema(array $schema, array $headers, int $statusCode): string
     {
         $tab = 1;
 
         $getSchemaMethod = self::tab($tab) . 'public static function get' . $statusCode . 'SchemaResponse(): array' . PHP_EOL;
         $getSchemaMethod .= self::tab($tab) . '{' . PHP_EOL;
         $getSchemaMethod .= self::tab($tab+1) . 'return [' . PHP_EOL;
-        $getSchemaMethod .= self::tab($tab+2) . '\'headers\' => [],' . PHP_EOL;
+        $getSchemaMethod .= self::tab($tab+2) . '\'headers\' => [' . PHP_EOL;
+        $getSchemaMethod .= self::getSchemaHeaderPropertiesAsString($headers, 4);
+        $getSchemaMethod .= self::tab($tab+2) . '],' . PHP_EOL;
         $getSchemaMethod .= self::tab($tab+2) . '\'body\' => [' . PHP_EOL;
         $getSchemaMethod .= self::getSchemaPropertiesAsString($schema, 4);
         $getSchemaMethod .= self::tab($tab+2) . '],' . PHP_EOL;
@@ -71,6 +86,19 @@ class SchemaGenerator
     private static function tab($count): string
     {
         return str_repeat(' ', $count*4);
+    }
+
+    private static function getSchemaHeaderPropertiesAsString(array $headers, int $tab): string
+    {
+        $getSchemaMethod = '';
+        foreach ($headers as $header => $value) {
+            $getSchemaMethod .= self::tab($tab) . "'$header' => [" . PHP_EOL;
+            $getSchemaMethod .= self::tab($tab+1) . "'value' => '{$value['value']}'," . PHP_EOL;
+            $getSchemaMethod .= self::tab($tab+1) . sprintf("'type' => self::TYPE_%s,", strtoupper($value['type'])) . PHP_EOL;
+            $getSchemaMethod .= self::tab($tab) . '],' . PHP_EOL;
+        }
+
+        return $getSchemaMethod;
     }
 
     private static function getSchemaPropertiesAsString(array $schema, int $tab): string

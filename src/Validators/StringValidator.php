@@ -14,5 +14,9 @@ class StringValidator implements Validator
         if (isset($details['pattern'])) {
             Assert::assertRegExp($details['pattern'], $value);
         }
+
+        if (isset($details['value'])) {
+            Assert::assertSame($details['value'], $value);
+        }
     }
 }
