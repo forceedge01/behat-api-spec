@@ -21,7 +21,7 @@ if (isset($_GET['exception'])) {
         'name' => 'Wahab Qureshi',
         'address' => [
             'first',
-            'jug' => 15,
+            'jug' => '15',
             'third',
         ]
     ]);

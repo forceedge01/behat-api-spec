@@ -67,22 +67,11 @@ class User implements Endpoint
                     'type' => self::TYPE_ARRAY,
                     'optional' => false,
                     'schema' => [
-                        '0' => [
+                        '*' => [
                             'type' => self::TYPE_STRING,
                             'optional' => false,
                             'pattern' => null,
-                        ],
-                        'jug' => [
-                            'type' => self::TYPE_INTEGER,
-                            'optional' => false,
-                            'min' => null,
-                            'max' => null,
-                        ],
-                        '1' => [
-                            'type' => self::TYPE_STRING,
-                            'optional' => false,
-                            'pattern' => null,
-                        ],
+                        ]
                     ],
                 ],
             ],
@@ -134,7 +123,7 @@ class User implements Endpoint
                             'pattern' => null,
                         ],
                         'jug' => [
-                            'type' => self::TYPE_INTEGER,
+                            'type' => self::TYPE_STRING,
                             'optional' => false,
                             'min' => null,
                             'max' => null,

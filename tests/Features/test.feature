@@ -17,8 +17,9 @@ Feature:
         When I make a GET request to "User" endpoint with query string "exception=1"
         Then I expect a 500 "User" response expecting:
             """
-            {"success":true,"name":"Wahab Qureshi","address":{"0":"first","jug":15,"1":"third"}}
+            {"success":true,"name":"Wahab Qureshi","address":{"0":"first","jug":"15","1":"third"}}
             """
+        Then the response should match the snapshot
 
     Scenario:
         When I make a GET request to "User" endpoint with query string "test=1"

@@ -156,6 +156,13 @@ class ApiSpecContext implements Context
     {
         foreach ($schema as $property => $typeDetails)
         {
+            if ($property === '*') {
+                foreach ($body as $index => $sut) {
+                    TypeValidator::assertValue($sut, $index, $typeDetails);
+                }
+                continue;
+            }
+
             $sut = $body[$property] ?? null;
 
             if (!$sut) {
