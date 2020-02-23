@@ -22,22 +22,22 @@ class User implements Endpoint
     public static function getSchema(): array
     {
         return [
-            200 => self::get200SchemaResponse(),
-            500 => self::get500SchemaResponse(),
-            201 => self::get201SchemaResponse(),
+            'POST' => [
+                200 => self::get200POSTSchemaResponse(),
+            ],
+            'GET' => [
+                500 => self::get500GETSchemaResponse(),
+                201 => self::get201GETSchemaResponse(),
+            ],
         ];
     }
 
-    public static function get200SchemaResponse(): array
+    public static function get200POSTSchemaResponse(): array
     {
         return [
             'headers' => [
                 'Host' => [
                     'value' => 'localhost:8090',
-                    'type' => self::TYPE_STRING,
-                ],
-                'Date' => [
-                    'pattern' => '/.*/',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [
@@ -58,36 +58,22 @@ class User implements Endpoint
                     'type' => self::TYPE_BOOLEAN,
                     'optional' => false,
                 ],
-                'name' => [
-                    'type' => self::TYPE_STRING,
+                'id' => [
+                    'type' => self::TYPE_INTEGER,
                     'optional' => false,
-                    'pattern' => null,
-                ],
-                'address' => [
-                    'type' => self::TYPE_ARRAY,
-                    'optional' => false,
-                    'schema' => [
-                        '*' => [
-                            'type' => self::TYPE_STRING,
-                            'optional' => false,
-                            'pattern' => null,
-                        ]
-                    ],
+                    'min' => null,
+                    'max' => null,
                 ],
             ],
         ];
     }
 
-    public static function get500SchemaResponse(): array
+    public static function get500GETSchemaResponse(): array
     {
         return [
             'headers' => [
                 'Host' => [
                     'value' => 'localhost:8090',
-                    'type' => self::TYPE_STRING,
-                ],
-                'Date' => [
-                    'pattern' => '/.*/',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [
@@ -108,47 +94,21 @@ class User implements Endpoint
                     'type' => self::TYPE_BOOLEAN,
                     'optional' => false,
                 ],
-                'name' => [
+                'error' => [
                     'type' => self::TYPE_STRING,
                     'optional' => false,
                     'pattern' => null,
-                ],
-                'address' => [
-                    'type' => self::TYPE_ARRAY,
-                    'optional' => false,
-                    'schema' => [
-                        '0' => [
-                            'type' => self::TYPE_STRING,
-                            'optional' => false,
-                            'pattern' => null,
-                        ],
-                        'jug' => [
-                            'type' => self::TYPE_STRING,
-                            'optional' => false,
-                            'min' => null,
-                            'max' => null,
-                        ],
-                        '1' => [
-                            'type' => self::TYPE_STRING,
-                            'optional' => false,
-                            'pattern' => null,
-                        ],
-                    ],
                 ],
             ],
         ];
     }
 
-    public static function get201SchemaResponse(): array
+    public static function get201GETSchemaResponse(): array
     {
         return [
             'headers' => [
                 'Host' => [
                     'value' => 'localhost:8090',
-                    'type' => self::TYPE_STRING,
-                ],
-                'Date' => [
-                    'pattern' => '/.*/',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [

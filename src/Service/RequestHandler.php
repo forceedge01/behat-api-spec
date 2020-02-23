@@ -14,6 +14,8 @@ class RequestHandler
 {
     private static $response;
 
+    private static $request;
+
     private static $baseUrl;
 
     public static function setBaseUrl(string $baseUrl)
@@ -21,15 +23,24 @@ class RequestHandler
         self::$baseUrl = $baseUrl;
     }
 
+    public static function getBaseUrl(): string
+    {
+        return self::$baseUrl;
+    }
+
     public static function sendRequest(string $method, string $endpoint, array $headers, string $body): void
     {
         try {
-            self::$response = self::getClient()->send(
-                self::createRequest($method, $endpoint, $headers, $body)
-            );
+            self::$request = self::createRequest($method, $endpoint, $headers, $body);
+            self::$response = self::getClient()->send(self::$request);
         } catch (ServerException $e) {
             self::$response = new Response(500);
         }
+    }
+
+    public static function getMethod(): string
+    {
+        return self::$request->getMethod();
     }
 
     public static function getResponseBody(): string

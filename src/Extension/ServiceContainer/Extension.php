@@ -6,6 +6,7 @@ use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Testwork\Cli\ServiceContainer\CliExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
+use Genesis\BehatApiSpec\Command\SampleRequest;
 use Genesis\BehatApiSpec\Command\UpdateSnapshots;
 use Genesis\BehatApiSpec\Extension\Initializer\Initializer;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -92,6 +93,7 @@ class Extension implements ExtensionInterface
         $definition->addTag(ContextExtension::INITIALIZER_TAG);
         $container->setDefinition(self::CONTEXT_INITIALISER, $definition);
         $this->addUpdateSnapshotsCommand($container);
+        $this->addSampleRequestCommand($container);
     }
 
     private function addUpdateSnapshotsCommand($container)
@@ -102,5 +104,15 @@ class Extension implements ExtensionInterface
         );
         $definition->addTag(CliExtension::CONTROLLER_TAG, array('priority' => 1));
         $container->setDefinition(CliExtension::CONTROLLER_TAG . '.apispec.updateSnapshot', $definition);
+    }
+
+    private function addSampleRequestCommand($container)
+    {
+        $definition = new Definition(
+            SampleRequest::class,
+            array(new Reference(self::CONTEXT_INITIALISER))
+        );
+        $definition->addTag(CliExtension::CONTROLLER_TAG, array('priority' => 1));
+        $container->setDefinition(CliExtension::CONTROLLER_TAG . '.apispec.sampleRequest', $definition);
     }
 }

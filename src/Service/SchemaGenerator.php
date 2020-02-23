@@ -46,8 +46,16 @@ class SchemaGenerator
         $getSchemaMethod = self::tab($tab) . 'public static function getSchema(): array' . PHP_EOL;
         $getSchemaMethod .= self::tab($tab) . '{' . PHP_EOL;
         $getSchemaMethod .= self::tab($tab+1) . 'return [' . PHP_EOL;
-        foreach ($details as $statusCode => $unused) {
-            $getSchemaMethod .= self::tab($tab+2) . $statusCode . ' => self::get' . $statusCode . 'SchemaResponse(),' . PHP_EOL;
+        foreach ($details as $method => $statusDetails) {
+            $getSchemaMethod .= self::tab($tab+2) . sprintf('\'%s\' => [', $method) . PHP_EOL;
+            foreach ($statusDetails as $statusCode => $unused) {
+                $getSchemaMethod .= self::tab($tab+3) . sprintf(
+                    '%d => self::get%sSchemaResponse(),',
+                    $statusCode,
+                    $statusCode . $method
+                ) . PHP_EOL;
+            }
+            $getSchemaMethod .= self::tab($tab+2) . '],' . PHP_EOL;
         }
         $getSchemaMethod .= self::tab($tab+1) . '];' . PHP_EOL;
         $getSchemaMethod .= self::tab($tab) . '}';
@@ -55,11 +63,11 @@ class SchemaGenerator
         return $getSchemaMethod;
     }
 
-    public static function suggestSchema(array $schema, array $headers, int $statusCode): string
+    public static function suggestSchema(string $method, array $schema, array $headers, int $statusCode): string
     {
         $tab = 1;
 
-        $getSchemaMethod = self::tab($tab) . 'public static function get' . $statusCode . 'SchemaResponse(): array' . PHP_EOL;
+        $getSchemaMethod = self::tab($tab) . 'public static function get' . $statusCode . $method . 'SchemaResponse(): array' . PHP_EOL;
         $getSchemaMethod .= self::tab($tab) . '{' . PHP_EOL;
         $getSchemaMethod .= self::tab($tab+1) . 'return [' . PHP_EOL;
         $getSchemaMethod .= self::tab($tab+2) . '\'headers\' => [' . PHP_EOL;
