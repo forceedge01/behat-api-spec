@@ -3,12 +3,15 @@
 namespace Genesis\BehatApiSpec\Extension\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
+use Behat\Testwork\Cli\ServiceContainer\CliExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
+use Genesis\BehatApiSpec\Command\UpdateSnapshots;
 use Genesis\BehatApiSpec\Extension\Initializer\Initializer;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Extension class.
@@ -88,5 +91,16 @@ class Extension implements ExtensionInterface
         ]);
         $definition->addTag(ContextExtension::INITIALIZER_TAG);
         $container->setDefinition(self::CONTEXT_INITIALISER, $definition);
+        $this->addUpdateSnapshotsCommand($container);
+    }
+
+    private function addUpdateSnapshotsCommand($container)
+    {
+        $definition = new Definition(
+            UpdateSnapshots::class,
+            array(new Reference(self::CONTEXT_INITIALISER))
+        );
+        $definition->addTag(CliExtension::CONTROLLER_TAG, array('priority' => 1));
+        $container->setDefinition(CliExtension::CONTROLLER_TAG . '.apispec.updateSnapshot', $definition);
     }
 }

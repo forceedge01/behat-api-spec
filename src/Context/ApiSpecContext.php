@@ -12,6 +12,7 @@ use Genesis\BehatApiSpec\Service\RequestHandler;
 use Genesis\BehatApiSpec\Service\SchemaGenerator;
 use Genesis\BehatApiSpec\Service\TypeValidator;
 use Genesis\BehatApiSpec\Validators;
+use Genesis\BehatApiSpec\Validators\StringValidator;
 use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\Assert;
 
@@ -20,6 +21,12 @@ class ApiSpecContext implements Context
     private static $mappings;
 
     private static $schemas;
+
+    private static $currentScenario;
+
+    private static $validSnapshots;
+
+    private static $updateSnapshots;
 
     private $headers = [];
 
@@ -39,31 +46,6 @@ class ApiSpecContext implements Context
         TypeValidator::registerValidator(Endpoint::TYPE_OBJECT, Validators\ObjectValidator::class);
         TypeValidator::registerValidator(Endpoint::TYPE_ENUM, Validators\EnumValidator::class);
         TypeValidator::registerValidator(Endpoint::TYPE_CALLBACK, Validators\CallbackValidator::class);
-    }
-
-    /**
-     * @Given I set the following headers:
-     */
-    public function iSetTheFollowingHeaders(TableNode $headers): void
-    {
-        foreach ($headers->getRowsHash() as $header => $value) {
-            $this->headers[$header] = $value;
-        }
-    }
-
-    /**
-     * @When I make a :method request to :arg1 endpoint with body:
-     * @When I make a :method request to :arg1 endpoint with query string :queryString
-     * @param mixed $method
-     * @param mixed $endpoint
-     */
-    public function sendRequest($method, $endpoint, PyStringNode $body = null, string $queryString = null): void
-    {
-        $endpoint = $this->getApiSpecEndpointClass($endpoint);
-        $headers = array_merge($this->headers, $endpoint::getHeaders());
-        $url = $endpoint::getEndpoint() . $queryString ? '?' . $queryString : '';
-        RequestHandler::sendRequest($method, $url, $headers, (string) $body);
-        $this->resetState();
     }
 
     /**
@@ -91,14 +73,61 @@ class ApiSpecContext implements Context
     /**
      * @AfterScenario
      */
-    public function resetStatusCode()
+    public function storeObsoleteFiles()
     {
-        RequestHandler::$overridingStatusCode = null;
+        self::$validSnapshots[] = self::getSnapshotName();
     }
 
-    public function resetState()
+    /**
+     * @AfterSuite
+     */
+    public static function displayObsoleteFiles()
     {
-        $this->headers = [];
+        // Filter out directories to check.
+        $directories = [];
+        foreach (self::$validSnapshots as $snapshot) {
+            $directories[dirname($snapshot)][] = basename($snapshot);
+        }
+        // Go through each directory and check for files that don't exist.
+        $obsoleteFiles = [];
+        foreach ($directories as $directory => $files) {
+            $scannedFiles = scandir($directory);
+            foreach ($scannedFiles as $file) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+
+                if (!in_array($directory . DIRECTORY_SEPARATOR . $file, self::$validSnapshots)) {
+                    $obsoleteFiles[] = $directory . DIRECTORY_SEPARATOR . $file;
+                }
+            }
+        }
+
+        if ($obsoleteFiles) {
+            echo 'Obsolete files:' . PHP_EOL;
+            print_r($obsoleteFiles);
+
+            if (self::$updateSnapshots) {
+                echo 'Deleting obsolete files...';
+                foreach ($obsoleteFiles as $file) {
+                    unlink($file);
+                }
+            }
+        }
+    }
+
+    public static function setUpdateSnapshots(bool $bool)
+    {
+        self::$updateSnapshots = $bool;
+    }
+
+    /**
+     * @BeforeScenario
+     * @param mixed $scope
+     */
+    public function setCurrentScenario($scope)
+    {
+        self::$currentScenario = $scope;
     }
 
     /**
@@ -128,13 +157,13 @@ class ApiSpecContext implements Context
             if (!isset($schema[RequestHandler::getStatusCode()])) {
                 echo sprintf('WARNING: Schema for status code %s not defined...', RequestHandler::getStatusCode());
             } else {
-                $statusSchema = $schema[RequestHandler::getStatusCode()];
-
                 Assert::assertSame(
                     $statusCode,
                     RequestHandler::getStatusCode(),
                     sprintf('Expected status code %d but got %d', $statusCode, RequestHandler::getStatusCode())
                 );
+
+                $statusSchema = $schema[RequestHandler::getStatusCode()];
 
                 if (isset($statusSchema['headers'])) {
                     TypeValidator::assertHeaders($statusSchema['headers'], RequestHandler::getHeaders());
@@ -150,6 +179,84 @@ class ApiSpecContext implements Context
         if ($expectedResponse) {
             Assert::assertSame($expectedResponse->getRaw(), RequestHandler::getResponseBody());
         }
+    }
+
+    /**
+     * @Given I set the following headers:
+     */
+    public function iSetTheFollowingHeaders(TableNode $headers): void
+    {
+        foreach ($headers->getRowsHash() as $header => $value) {
+            $this->headers[$header] = $value;
+        }
+    }
+
+    /**
+     * @When I make a :method request to :arg1 endpoint with body:
+     * @When I make a :method request to :arg1 endpoint with query string :queryString
+     * @param mixed $method
+     * @param mixed $endpoint
+     */
+    public function sendRequest($method, $endpoint, PyStringNode $body = null, string $queryString = null): void
+    {
+        $endpoint = $this->getApiSpecEndpointClass($endpoint);
+        $headers = array_merge($this->headers, $endpoint::getHeaders());
+        $url = $endpoint::getEndpoint() . ($queryString ? '?' . $queryString : '');
+        RequestHandler::sendRequest($method, $url, $headers, (string) $body);
+        $this->resetState();
+    }
+
+    /**
+     * @Then the response should match the snapshot
+     * @param null|mixed $uniqueName
+     */
+    public function theResponseShouldMatchTheSnapshot()
+    {
+        $uniqueName = self::getSnapshotName();
+        $actualResponse = RequestHandler::getResponseBody();
+        if (!is_dir(dirname($uniqueName))) {
+            mkdir(dirname($uniqueName), 0777, true);
+        }
+
+        if (file_exists($uniqueName)) {
+            $expected = file_get_contents($uniqueName);
+            try {
+                StringValidator::validate($actualResponse, ['value' => $expected]);
+            } catch (Exception $e) {
+                if (! self::$updateSnapshots) {
+                    throw $e;
+                }
+
+                echo 'Updating snapshot: ' . $uniqueName;
+                file_put_contents($uniqueName, $actualResponse);
+                $this->theResponseShouldMatchTheSnapshot();
+            }
+        } else {
+            echo 'Generating screenshot:' . $uniqueName;
+            file_put_contents($uniqueName, $actualResponse);
+        }
+    }
+
+    private static function getSnapshotName(): string
+    {
+        $title = self::$currentScenario->getScenario()->getTitle();
+        if (!$title) {
+            throw new Exception('In order to create a snapshot, please declare scenario title.');
+        }
+
+        $featurePath = self::$currentScenario->getFeature()->getFile();
+
+        return substr($featurePath, 0, strrpos($featurePath, '/'))
+            . DIRECTORY_SEPARATOR
+            . '__snapshots__'
+            . DIRECTORY_SEPARATOR
+            . strtolower(str_replace([' '], '-', $title))
+            . '.txt';
+    }
+
+    public function resetState()
+    {
+        $this->headers = [];
     }
 
     private function validate($body, array $schema): void

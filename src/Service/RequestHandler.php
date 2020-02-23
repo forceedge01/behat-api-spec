@@ -7,6 +7,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
 
 class RequestHandler
@@ -14,8 +15,6 @@ class RequestHandler
     private static $response;
 
     private static $baseUrl;
-
-    public static $overridingStatusCode;
 
     public static function setBaseUrl(string $baseUrl)
     {
@@ -29,8 +28,7 @@ class RequestHandler
                 self::createRequest($method, $endpoint, $headers, $body)
             );
         } catch (ServerException $e) {
-            self::$overridingStatusCode = 500;
-            // Do nothing.
+            self::$response = new Response(500);
         }
     }
 
@@ -41,10 +39,6 @@ class RequestHandler
 
     public static function getStatusCode(): int
     {
-        if (self::$overridingStatusCode) {
-            return self::$overridingStatusCode;
-        }
-
         return self::$response->getStatusCode();
     }
 
@@ -55,6 +49,8 @@ class RequestHandler
 
     private static function getClient(array $config = []): ClientInterface
     {
+        $config['http_errors'] = false;
+
         return new Client($config);
     }
 

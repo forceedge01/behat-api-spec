@@ -5,7 +5,7 @@ if (isset($_GET['exception'])) {
     http_response_code(500);
     $data = json_encode([
         'success' => false,
-        'error' => 'Something went wrong'
+        'error' => 'Something went wrongsssss'
     ]);
 } elseif (isset($_GET['test'])) {
     http_response_code(201);
