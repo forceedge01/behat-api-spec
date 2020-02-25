@@ -16,12 +16,12 @@ Feature:
         Then the response should match the snapshot
         And I expect a 500 "User" response
 
-    Scenario: 201 Get request
+    Scenario: 201 Get request'si in spade
         When I make a GET request to "User" endpoint with query string "test=true"
         Then the response should match the snapshot
         And I expect a 201 "User" response
 
-    Scenario: 200 POST request to create user.
+    Scenario: 200 POST request to create user
         When I make a POST request to "User" endpoint with body:
             """
             {"name": "Wahab Qureshi", "postcode": "B23 7QQ"}

@@ -308,7 +308,7 @@ class ApiSpecContext implements Context
                 self::$updatedSnapshots++;
             }
         } else {
-            echo 'Generating snapshot:' . $title;
+            echo 'Generating snapshot: ' . $title;
             Snapshot::save($path, $title, $actualResponse);
         }
     }

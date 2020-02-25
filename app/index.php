@@ -5,7 +5,7 @@ if (isset($_GET['exception'])) {
     http_response_code(500);
     $data = json_encode([
         'success' => false,
-        'error' => 'Something went wrongsssss'
+        'error' => 'Something went wrongsssss huwaaa`zi'
     ]);
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     http_response_code(200);
@@ -24,7 +24,7 @@ if (isset($_GET['exception'])) {
     http_response_code(200);
     $data = json_encode([
         'success' => true,
-        'name' => 'Wahab Qureshi',
+        'name' => "Wahab Qureshi's armageddon",
         'address' => [
             'first',
             'jug' => '15',

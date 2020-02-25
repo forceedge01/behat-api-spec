@@ -13,7 +13,7 @@ class Snapshot
             throw new Exception('In order to create a snapshot, please declare scenario title.');
         }
 
-        return strtolower(str_replace([' '], '-', basename($title)));
+        return strtolower(basename($title));
     }
 
     public static function getSnapshotPath($currentScenario): string
@@ -25,7 +25,7 @@ class Snapshot
             . '__snapshots__'
             . DIRECTORY_SEPARATOR
             . strtolower(str_replace([' '], '-', basename($featurePath)))
-            . '.txt';
+            . '.snap.php';
     }
 
     public static function createSnapshotDir(string $dir)
@@ -55,7 +55,7 @@ class Snapshot
             return null;
         }
 
-        return unserialize(file_get_contents($file));
+        return include $file;
     }
 
     public static function getSnapshot(string $file, string $scenario): ?string
@@ -74,7 +74,7 @@ class Snapshot
         $contents = self::getSnapshots($file);
         unset($contents[$scenario]);
 
-        return file_put_contents($file, serialize($contents)) > 0;
+        return file_put_contents($file, self::getContentsAsString($contents)) > 0;
     }
 
     public static function save(string $file, string $scenario, string $snapshot): bool
@@ -82,6 +82,30 @@ class Snapshot
         $contents = self::getSnapshots($file);
         $contents[$scenario] = $snapshot;
 
-        return file_put_contents($file, serialize($contents)) > 0;
+        return file_put_contents($file, self::getContentsAsString($contents)) > 0;
+    }
+
+    private static function getContentsAsString(array $contents)
+    {
+        $builder = StringBuilder::newInstance(0)
+            ->addLine('<?php return [')
+            ->incrementTabLevel();
+
+        foreach ($contents as $scenario => $response) {
+            $builder->newLine()
+                ->addLine(sprintf(
+                    "'%s' =>",
+                    str_replace("'", "\\'", $scenario)
+                ))
+                ->incrementTabLevel()
+                ->addLine(sprintf(
+                    "'%s',",
+                    str_replace("'", "\\'", $response)
+                ))
+                ->decrementTabLevel()
+                ->newLine();
+        }
+
+        return $builder->decrementTabLevel()->addLine('];')->getString();
     }
 }

@@ -10,9 +10,12 @@ class StringBuilder
 
     private $tabLevel = 1;
 
-    public static function newInstance(): self
+    public static function newInstance($tabLevel = 1): self
     {
-        return new static();
+        $builder = new static();
+        $builder->setTabLevel($tabLevel);
+
+        return $builder;
     }
 
     public function setTabLevel(int $tabLevel): self
