@@ -11,30 +11,25 @@ use Genesis\BehatApiSpec\Entity\Schema;
 use Genesis\BehatApiSpec\Exception\RequiredPropertyMissingException;
 use Genesis\BehatApiSpec\Service\RequestHandler;
 use Genesis\BehatApiSpec\Service\SchemaGenerator;
-use Genesis\BehatApiSpec\Service\Snapshot;
 use Genesis\BehatApiSpec\Service\TypeValidator;
+use Genesis\BehatApiSpec\Traits\JsonValidateTrait;
+use Genesis\BehatApiSpec\Traits\SampleRequestGeneratorTrait;
+use Genesis\BehatApiSpec\Traits\SchemaGeneratorTrait;
+use Genesis\BehatApiSpec\Traits\SnapshotTrait;
 use Genesis\BehatApiSpec\Validators;
-use Genesis\BehatApiSpec\Validators\StringValidator;
 use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\Assert;
 
 class ApiSpecContext implements Context
 {
+    use JsonValidateTrait;
+    use SnapshotTrait;
+    use SampleRequestGeneratorTrait;
+    use SchemaGeneratorTrait;
+
     private static $mappings;
 
-    private static $schemas = [];
-
-    private static $queryParams = [];
-
     private static $currentScenario;
-
-    private static $validSnapshots;
-
-    private static $updateSnapshots;
-
-    private static $sampleRequestFormat;
-
-    private static $updatedSnapshots = 0;
 
     private $headers = [];
 
@@ -57,108 +52,7 @@ class ApiSpecContext implements Context
     }
 
     /**
-     * @AfterSuite
-     */
-    public static function generateSchema()
-    {
-        if (self::$schemas) {
-            echo 'Appending to schema files:' . PHP_EOL;
-            $schemaString = '';
-            foreach (self::$schemas as $apiSpec => $details) {
-                $schemaString = SchemaGenerator::createSchemaHandlerFunction($details);
-                $schemaString .= SchemaGenerator::createQueryStringDeclarationFunction(self::$queryParams[$apiSpec]);
-                foreach ($details as $method => $statusDetails) {
-                    echo PHP_EOL . $apiSpec . PHP_EOL;
-                    foreach ($statusDetails as $statusCode => $schema) {
-                        echo $method . '::' . $statusCode . ' ';
-                        $schemaString .= SchemaGenerator::suggestSchema(
-                            $method,
-                            $schema['body'],
-                            $schema['headers'],
-                            $statusCode
-                        );
-                    }
-                }
-
-                SchemaGenerator::appendSchemaToEndpointSpec($apiSpec, trim($schemaString, PHP_EOL));
-                echo PHP_EOL . PHP_EOL;
-            }
-        }
-    }
-
-    /**
-     * @AfterScenario
-     */
-    public function storeObsoleteFiles()
-    {
-        self::$validSnapshots[Snapshot::getSnapshotPath(self::$currentScenario)][] = Snapshot::getSnapshotTitle(self::$currentScenario);
-    }
-
-    /**
-     * @AfterSuite
-     */
-    public static function displayObsoleteFiles()
-    {
-        // Go through each directory and check for files that don't exist.
-        $obsoleteFiles = [];
-        $obsoleteSnapshots = [];
-        foreach (self::$validSnapshots as $snapshotFile => $snapshots) {
-            $directory = dirname($snapshotFile);
-            $scannedFiles = scandir($directory);
-            foreach ($scannedFiles as $file) {
-                if ($file === '.' || $file === '..') {
-                    continue;
-                }
-
-                if (!in_array($snapshotFile, array_keys(self::$validSnapshots))) {
-                    $obsoleteFiles[] = snapshotFile;
-                    continue;
-                }
-            }
-
-            $storedSnapshots = Snapshot::getSnapshots($snapshotFile);
-            foreach ($storedSnapshots as $scenario => $storedSnapshot) {
-                if (!in_array($scenario, $snapshots)) {
-                    $obsoleteSnapshots[$snapshotFile][] = $scenario;
-                }
-            }
-        }
-
-        if ($obsoleteFiles || $obsoleteSnapshots) {
-            echo 'Obsolete files:' . PHP_EOL;
-            print_r($obsoleteFiles);
-            echo 'Obsolete snapshots:' . PHP_EOL;
-            print_r($obsoleteSnapshots);
-
-            if (self::$updateSnapshots) {
-                echo 'Deleting obsolete files...' . PHP_EOL;
-                foreach ($obsoleteFiles as $file) {
-                    unlink($file);
-                }
-
-                foreach ($obsoleteSnapshots as $file => $snapshots) {
-                    foreach ($snapshots as $snapshot) {
-                        echo 'Removing snapshot: ' . $snapshot;
-                        Snapshot::remove($file, $snapshot);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * @AfterSuite
-     */
-    public static function displayUpdatedSnapshots()
-    {
-        if (self::$updateSnapshots) {
-            echo 'Updated snapshot(s): ' . self::$updatedSnapshots;
-        }
-    }
-
-    /**
      * @BeforeScenario
-     * @param mixed $scope
      */
     public function setCurrentScenario($scope)
     {
@@ -180,8 +74,6 @@ class ApiSpecContext implements Context
      * @When I make a :method request to :arg1 endpoint with body:
      * @When I make a :method request to :arg1 endpoint with query string :queryString
      * @When I make a :method request to :arg1 endpoint with query string :queryString and body:
-     * @param mixed $method
-     * @param mixed $endpoint
      */
     public function sendRequest($method, $endpoint, PyStringNode $body = null, string $queryString = null): void
     {
@@ -192,33 +84,26 @@ class ApiSpecContext implements Context
         $this->resetState();
 
         if (self::$sampleRequestFormat) {
-            switch (self::$sampleRequestFormat) {
-                case 'curl':
-                    $command = 'curl';
-                    $command .= " -X $method";
-                    if ($headers) {
-                        foreach ($headers as $header => $value) {
-                            $command .= " --header '$header: $value'";
-                        }
-                    }
-                    if ($body) {
-                        $command .= ' -d \'' . (string) $body . '\'';
-                    }
-                    $command .= " '" . RequestHandler::getBaseUrl() . $url . "'";
-                    echo $command;
-                    break;
-
-                default:
-                    throw new Exception('Unknown format for sample request: ' . self::$sampleRequestFormat);
-            }
+            $this->handleSampleRequest(self::$sampleRequestFormat);
         }
+    }
+
+    /**
+     * @Then I expect a :statusCode status code
+     */
+    public function validateStatusCode($statusCode)
+    {
+        $statusCode = (int) $statusCode;
+        Assert::assertSame(
+            $statusCode,
+            RequestHandler::getStatusCode(),
+            sprintf('Expected status code %d but got %d', $statusCode, RequestHandler::getStatusCode())
+        );
     }
 
     /**
      * @Then I expect a :statusCode :apiSpec response expecting:
      * @Then I expect a :statusCode :apiSpec response
-     * @param mixed $statusCode
-     * @param mixed $apiSpec
      */
     public function validateResponse($statusCode, $apiSpec, PyStringNode $expectedResponse = null): void
     {
@@ -251,12 +136,7 @@ class ApiSpecContext implements Context
                 throw new Exception(sprintf('Schema for status code %s not defined...', RequestHandler::getStatusCode()));
             }
 
-            Assert::assertSame(
-                $statusCode,
-                RequestHandler::getStatusCode(),
-                sprintf('Expected status code %d but got %d', $statusCode, RequestHandler::getStatusCode())
-            );
-
+            $this->validateStatusCode($statusCode);
             $statusSchema = $schema->getSchema(RequestHandler::getMethod(), RequestHandler::getStatusCode());
 
             if (isset($statusSchema['headers'])) {
@@ -282,77 +162,9 @@ class ApiSpecContext implements Context
         }
     }
 
-    /**
-     * @Then the response should match the snapshot
-     * @param null|mixed $uniqueName
-     */
-    public function theResponseShouldMatchTheSnapshot()
-    {
-        $title = Snapshot::getSnapshotTitle(self::$currentScenario);
-        $path = Snapshot::getSnapshotPath(self::$currentScenario);
-        $actualResponse = RequestHandler::getResponseBody();
-        Snapshot::createSnapshotDir($path);
-
-        if (Snapshot::exists($path, $title)) {
-            $expected = Snapshot::getSnapshot($path, $title);
-            try {
-                StringValidator::validate($actualResponse, ['value' => $expected]);
-            } catch (Exception $e) {
-                if (! self::$updateSnapshots) {
-                    echo 'Update snapshot with --update-snapshots or -u flag.';
-                    throw $e;
-                }
-
-                echo 'Updating snapshot... ';
-                Snapshot::save($path, $title, $actualResponse);
-                self::$updatedSnapshots++;
-            }
-        } else {
-            echo 'Generating snapshot: ' . $title;
-            Snapshot::save($path, $title, $actualResponse);
-        }
-    }
-
-    public static function setUpdateSnapshots(bool $bool)
-    {
-        self::$updateSnapshots = $bool;
-    }
-
-    public static function setSampleRequest(string $format)
-    {
-        self::$sampleRequestFormat = $format;
-    }
-
     public function resetState()
     {
         $this->headers = [];
-    }
-
-    private function schemaExists(string $apiSpec): bool
-    {
-        return isset(self::$schemas[$apiSpec][RequestHandler::getMethod()][RequestHandler::getStatusCode()]);
-    }
-
-    private function addSchema(string $apiSpec, array $headers, array $body): self
-    {
-        self::$schemas[$apiSpec][RequestHandler::getMethod()][RequestHandler::getStatusCode()] = [
-            'headers' => $headers,
-            'body' => $body
-        ];
-
-        return $this;
-    }
-
-    private function addQueryParam(string $apiSpec, array $params): self
-    {
-        if ($params) {
-            if (!isset(self::$queryParams[$apiSpec])) {
-                self::$queryParams[$apiSpec] = [];
-            }
-            self::$queryParams[$apiSpec] = array_merge($params, self::$queryParams[$apiSpec]);
-        }
-
-        return $this;
     }
 
     private function validate($body, array $schema): void
@@ -385,6 +197,7 @@ class ApiSpecContext implements Context
             } catch (Exception $e) {
                 throw new Exception(sprintf('Validation failed for property %s, error: %s', $property, $e->getMessage()));
             }
+
             if ($typeDetails['type'] == Endpoint::TYPE_OBJECT || $typeDetails['type'] === Endpoint::TYPE_ARRAY) {
                 $this->validate($sut, $typeDetails['schema']);
             }

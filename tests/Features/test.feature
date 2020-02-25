@@ -3,13 +3,17 @@ Feature:
     As a developer
     I want to test it
 
-    Scenario: 200 user response
+    Scenario: 200 user response, authentic ira
         Given I set the following headers:
             | content-type | application/json |
             | accept       | en               |
         When I make a GET request to "User" endpoint
         Then I expect a 200 "User" response
         And the response should match the snapshot
+        And I expect the following content in the JSON response 'address.jug' key:
+            """
+            "15"
+            """
 
     Scenario: 500 exception response
         When I make a GET request to "User" endpoint with query string "exception=1&error=message+is+bad&errorCode=503"
@@ -28,3 +32,4 @@ Feature:
             """
         Then I expect a 200 "User" response
         And the response should match the snapshot
+        
