@@ -7,12 +7,12 @@ Feature:
         Given I set the following headers:
             | content-type | application/json |
             | accept       | en               |
-        When I make a POST request to "User" endpoint
+        When I make a GET request to "User" endpoint
         Then I expect a 200 "User" response
         And the response should match the snapshot
 
     Scenario: 500 exception response
-        When I make a GET request to "User" endpoint with query string "exception=1"
+        When I make a GET request to "User" endpoint with query string "exception=1&error=message+is+bad&errorCode=503"
         Then the response should match the snapshot
         And I expect a 500 "User" response
 

@@ -22,7 +22,9 @@ class ApiSpecContext implements Context
 {
     private static $mappings;
 
-    private static $schemas;
+    private static $schemas = [];
+
+    private static $queryParams = [];
 
     private static $currentScenario;
 
@@ -31,6 +33,8 @@ class ApiSpecContext implements Context
     private static $updateSnapshots;
 
     private static $sampleRequestFormat;
+
+    private static $updatedSnapshots = 0;
 
     private $headers = [];
 
@@ -62,11 +66,11 @@ class ApiSpecContext implements Context
             $schemaString = '';
             foreach (self::$schemas as $apiSpec => $details) {
                 $schemaString = SchemaGenerator::createSchemaHandlerFunction($details);
+                $schemaString .= SchemaGenerator::createQueryStringDeclarationFunction(self::$queryParams[$apiSpec]);
                 foreach ($details as $method => $statusDetails) {
-                    echo $apiSpec . PHP_EOL;
+                    echo PHP_EOL . $apiSpec . PHP_EOL;
                     foreach ($statusDetails as $statusCode => $schema) {
                         echo $method . '::' . $statusCode . ' ';
-                        $schemaString .= PHP_EOL . PHP_EOL;
                         $schemaString .= SchemaGenerator::suggestSchema(
                             $method,
                             $schema['body'],
@@ -76,7 +80,7 @@ class ApiSpecContext implements Context
                     }
                 }
 
-                SchemaGenerator::appendSchemaToEndpointSpec($apiSpec, $schemaString);
+                SchemaGenerator::appendSchemaToEndpointSpec($apiSpec, trim($schemaString, PHP_EOL));
                 echo PHP_EOL . PHP_EOL;
             }
         }
@@ -139,6 +143,16 @@ class ApiSpecContext implements Context
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * @AfterSuite
+     */
+    public static function displayUpdatedSnapshots()
+    {
+        if (self::$updateSnapshots) {
+            echo 'Updated snapshot(s): ' . self::$updatedSnapshots;
         }
     }
 
@@ -217,32 +231,49 @@ class ApiSpecContext implements Context
 
         if (!method_exists($apiSpec, 'getSchema')) {
             echo sprintf('Scaffolding schema for endpoint: %s...', $apiSpec);
-            if (!isset(self::$schemas[$apiSpec][RequestHandler::getMethod()][RequestHandler::getStatusCode()])) {
-                $schema['body'] = SchemaGenerator::scaffoldSchema(RequestHandler::getResponseBody());
-                $schema['headers'] = SchemaGenerator::scaffoldHeaderSchema(RequestHandler::getHeaders());
-                self::$schemas[$apiSpec][RequestHandler::getMethod()][RequestHandler::getStatusCode()] = $schema;
+            if (!$this->schemaExists($apiSpec)) {
+                $this->addSchema(
+                    $apiSpec,
+                    SchemaGenerator::scaffoldHeaderSchema(RequestHandler::getHeaders()),
+                    SchemaGenerator::scaffoldSchema(RequestHandler::getResponseBody())
+                )
+                ->addQueryParam($apiSpec, SchemaGenerator::scaffoldQueryParams(RequestHandler::getUri()));
             }
         } else {
             $schema = new Schema($apiSpec::getSchema());
             if (!$schema->hasSchema(RequestHandler::getMethod(), RequestHandler::getStatusCode())) {
-                echo sprintf('WARNING: Schema for status code %s not defined...', RequestHandler::getStatusCode());
-            } else {
-                Assert::assertSame(
-                    $statusCode,
-                    RequestHandler::getStatusCode(),
-                    sprintf('Expected status code %d but got %d', $statusCode, RequestHandler::getStatusCode())
+                echo SchemaGenerator::suggestSchema(
+                    RequestHandler::getMethod(),
+                    SchemaGenerator::scaffoldSchema(RequestHandler::getResponseBody()),
+                    SchemaGenerator::scaffoldHeaderSchema(RequestHandler::getHeaders()),
+                    RequestHandler::getStatusCode()
                 );
+                throw new Exception(sprintf('Schema for status code %s not defined...', RequestHandler::getStatusCode()));
+            }
 
-                $statusSchema = $schema->getSchema(RequestHandler::getMethod(), RequestHandler::getStatusCode());
+            Assert::assertSame(
+                $statusCode,
+                RequestHandler::getStatusCode(),
+                sprintf('Expected status code %d but got %d', $statusCode, RequestHandler::getStatusCode())
+            );
 
-                if (isset($statusSchema['headers'])) {
-                    TypeValidator::assertHeaders($statusSchema['headers'], RequestHandler::getHeaders());
-                }
+            $statusSchema = $schema->getSchema(RequestHandler::getMethod(), RequestHandler::getStatusCode());
 
+            if (isset($statusSchema['headers'])) {
+                TypeValidator::assertHeaders($statusSchema['headers'], RequestHandler::getHeaders());
+            }
+
+            try {
                 $this->validate(
                     json_decode(RequestHandler::getResponseBody(), true),
                     $statusSchema['body']
                 );
+            } catch (Exception $e) {
+                throw new Exception(sprintf(
+                    'Validation failed, error: %s, response body: %s',
+                    $e->getMessage(),
+                    RequestHandler::getResponseBody()
+                ));
             }
         }
 
@@ -274,7 +305,7 @@ class ApiSpecContext implements Context
 
                 echo 'Updating snapshot... ';
                 Snapshot::save($path, $title, $actualResponse);
-                $this->theResponseShouldMatchTheSnapshot();
+                self::$updatedSnapshots++;
             }
         } else {
             echo 'Generating snapshot:' . $title;
@@ -295,6 +326,33 @@ class ApiSpecContext implements Context
     public function resetState()
     {
         $this->headers = [];
+    }
+
+    private function schemaExists(string $apiSpec): bool
+    {
+        return isset(self::$schemas[$apiSpec][RequestHandler::getMethod()][RequestHandler::getStatusCode()]);
+    }
+
+    private function addSchema(string $apiSpec, array $headers, array $body): self
+    {
+        self::$schemas[$apiSpec][RequestHandler::getMethod()][RequestHandler::getStatusCode()] = [
+            'headers' => $headers,
+            'body' => $body
+        ];
+
+        return $this;
+    }
+
+    private function addQueryParam(string $apiSpec, array $params): self
+    {
+        if ($params) {
+            if (!isset(self::$queryParams[$apiSpec])) {
+                self::$queryParams[$apiSpec] = [];
+            }
+            self::$queryParams[$apiSpec] = array_merge($params, self::$queryParams[$apiSpec]);
+        }
+
+        return $this;
     }
 
     private function validate($body, array $schema): void

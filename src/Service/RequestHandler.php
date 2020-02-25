@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\UriInterface;
 
 class RequestHandler
 {
@@ -56,6 +57,11 @@ class RequestHandler
     public static function getHeaders(): array
     {
         return self::$response->getHeaders();
+    }
+
+    public static function getUri(): UriInterface
+    {
+        return self::$request->getUri();
     }
 
     private static function getClient(array $config = []): ClientInterface

@@ -2,6 +2,7 @@
 
 namespace Genesis\BehatApiSpec\Service;
 
+use Psr\Http\Message\UriInterface;
 use ReflectionClass;
 
 class SchemaGenerator
@@ -18,6 +19,50 @@ class SchemaGenerator
         }
 
         return $formattedheaders;
+    }
+
+    public static function createQueryStringDeclarationFunction(array $queryParams): string
+    {
+        $queryFunction = StringBuilder::newInstance()
+            ->newLine()
+            ->addLine('public static function getQueryParams(): array')
+            ->addLine('{')
+            ->incrementTabLevel()
+            ->addLine('return [')
+            ->incrementTabLevel();
+
+        foreach ($queryParams as $param => $value) {
+            $queryFunction
+                ->addLine(sprintf("'%s' => [", $param))
+                ->incrementTabLevel()
+                ->addLine(sprintf("'type' => %s,", self::getTypeAsConstant(gettype($value))))
+                ->addLine("'description' => '',")
+                ->addLine("'example' => '$value',")
+                ->addLine("'pattern' => '',")
+                ->decrementTabLevel()
+                ->addLine('],');
+        }
+
+        $queryFunction
+            ->decrementTabLevel()
+            ->addLine('];')
+            ->decrementTabLevel()
+            ->addLine('}');
+
+        return $queryFunction->getString();
+    }
+
+    private static function addLine(string $line, $tab): string
+    {
+        return PHP_EOL . self::tab($tab) . $line;
+    }
+
+    public static function scaffoldQueryParams(UriInterface $query): array
+    {
+        $output = [];
+        parse_str($query->getQuery(), $output);
+
+        return $output;
     }
 
     public static function scaffoldSchema(string $body): array
@@ -41,45 +86,50 @@ class SchemaGenerator
 
     public static function createSchemaHandlerFunction(array $details): string
     {
-        $tab = 1;
+        $queryFunction = StringBuilder::newInstance()
+            ->addLine('public static function getSchema(): array')
+            ->addLine('{')
+            ->incrementTabLevel()
+            ->addLine('return [')
+            ->incrementTabLevel();
 
-        $getSchemaMethod = self::tab($tab) . 'public static function getSchema(): array' . PHP_EOL;
-        $getSchemaMethod .= self::tab($tab) . '{' . PHP_EOL;
-        $getSchemaMethod .= self::tab($tab+1) . 'return [' . PHP_EOL;
         foreach ($details as $method => $statusDetails) {
-            $getSchemaMethod .= self::tab($tab+2) . sprintf('\'%s\' => [', $method) . PHP_EOL;
+            $queryFunction->addLine(sprintf('\'%s\' => [', $method))->incrementTabLevel();
             foreach ($statusDetails as $statusCode => $unused) {
-                $getSchemaMethod .= self::tab($tab+3) . sprintf(
+                $queryFunction->addLine(sprintf(
                     '%d => self::get%sSchemaResponse(),',
                     $statusCode,
                     $statusCode . $method
-                ) . PHP_EOL;
+                ));
             }
-            $getSchemaMethod .= self::tab($tab+2) . '],' . PHP_EOL;
+            $queryFunction->decrementTabLevel()->addLine('],');
         }
-        $getSchemaMethod .= self::tab($tab+1) . '];' . PHP_EOL;
-        $getSchemaMethod .= self::tab($tab) . '}';
 
-        return $getSchemaMethod;
+        $queryFunction->decrementTabLevel()
+            ->addLine('];')
+            ->decrementTabLevel()
+            ->addLine('}');
+
+        return $queryFunction->getString();
     }
 
     public static function suggestSchema(string $method, array $schema, array $headers, int $statusCode): string
     {
-        $tab = 1;
+        $queryFunction = StringBuilder::newInstance()
+            ->newLine()
+            ->addLine('public static function get' . $statusCode . $method . 'SchemaResponse(): array')
+            ->addLine('{')
+            ->incrementTabLevel()->addLine('return [')
+            ->incrementTabLevel()->addLine("'headers' => [")
+            ->setTabLevel(0)->addLine(trim(self::getSchemaHeaderPropertiesAsString($headers, 4), PHP_EOL))->setTabLevel(3)
+            ->addLine('],')
+            ->addLine("'body' => [")
+            ->setTabLevel(0)->addLine(trim(self::getSchemaPropertiesAsString($schema, 4), PHP_EOL))->setTabLevel(3)
+            ->addLine('],')
+            ->decrementTabLevel()->addLine('];')
+            ->decrementTabLevel()->addLine('}');
 
-        $getSchemaMethod = self::tab($tab) . 'public static function get' . $statusCode . $method . 'SchemaResponse(): array' . PHP_EOL;
-        $getSchemaMethod .= self::tab($tab) . '{' . PHP_EOL;
-        $getSchemaMethod .= self::tab($tab+1) . 'return [' . PHP_EOL;
-        $getSchemaMethod .= self::tab($tab+2) . '\'headers\' => [' . PHP_EOL;
-        $getSchemaMethod .= self::getSchemaHeaderPropertiesAsString($headers, 4);
-        $getSchemaMethod .= self::tab($tab+2) . '],' . PHP_EOL;
-        $getSchemaMethod .= self::tab($tab+2) . '\'body\' => [' . PHP_EOL;
-        $getSchemaMethod .= self::getSchemaPropertiesAsString($schema, 4);
-        $getSchemaMethod .= self::tab($tab+2) . '],' . PHP_EOL;
-        $getSchemaMethod .= self::tab($tab+1) . '];' . PHP_EOL;
-        $getSchemaMethod .= self::tab($tab) . '}';
-
-        return $getSchemaMethod;
+        return $queryFunction->getString();
     }
 
     public static function appendSchemaToEndpointSpec(string $apiSpec, string $schema): void
@@ -102,11 +152,16 @@ class SchemaGenerator
         foreach ($headers as $header => $value) {
             $getSchemaMethod .= self::tab($tab) . "'$header' => [" . PHP_EOL;
             $getSchemaMethod .= self::tab($tab+1) . "'value' => '{$value['value']}'," . PHP_EOL;
-            $getSchemaMethod .= self::tab($tab+1) . sprintf("'type' => self::TYPE_%s,", strtoupper($value['type'])) . PHP_EOL;
+            $getSchemaMethod .= self::tab($tab+1) . sprintf("'type' => %s,", self::getTypeAsConstant($value['type'])) . PHP_EOL;
             $getSchemaMethod .= self::tab($tab) . '],' . PHP_EOL;
         }
 
         return $getSchemaMethod;
+    }
+
+    private static function getTypeAsConstant($type): string
+    {
+        return sprintf('self::TYPE_%s', strtoupper($type));
     }
 
     private static function getSchemaPropertiesAsString(array $schema, int $tab): string

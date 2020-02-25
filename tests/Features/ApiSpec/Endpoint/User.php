@@ -22,17 +22,48 @@ class User implements Endpoint
     public static function getSchema(): array
     {
         return [
-            'POST' => [
-                200 => self::get200POSTSchemaResponse(),
-            ],
             'GET' => [
+                200 => self::get200GETSchemaResponse(),
                 500 => self::get500GETSchemaResponse(),
                 201 => self::get201GETSchemaResponse(),
+            ],
+            'POST' => [
+                200 => self::get200POSTSchemaResponse(),
             ],
         ];
     }
 
-    public static function get200POSTSchemaResponse(): array
+    public static function getQueryParams(): array
+    {
+        return [
+            'test' => [
+                'type' => self::TYPE_STRING,
+                'description' => '',
+                'example' => 'true',
+                'pattern' => '',
+            ],
+            'exception' => [
+                'type' => self::TYPE_STRING,
+                'description' => '',
+                'example' => '1',
+                'pattern' => '',
+            ],
+            'error' => [
+                'type' => self::TYPE_STRING,
+                'description' => '',
+                'example' => 'message is bad',
+                'pattern' => '',
+            ],
+            'errorCode' => [
+                'type' => self::TYPE_STRING,
+                'description' => '',
+                'example' => '503',
+                'pattern' => '',
+            ],
+        ];
+    }
+
+    public static function get200GETSchemaResponse(): array
     {
         return [
             'headers' => [
@@ -58,11 +89,21 @@ class User implements Endpoint
                     'type' => self::TYPE_BOOLEAN,
                     'optional' => false,
                 ],
-                'id' => [
-                    'type' => self::TYPE_INTEGER,
+                'name' => [
+                    'type' => self::TYPE_STRING,
                     'optional' => false,
-                    'min' => null,
-                    'max' => null,
+                    'pattern' => null,
+                ],
+                'address' => [
+                    'type' => self::TYPE_ARRAY,
+                    'optional' => false,
+                    'schema' => [
+                        '*' => [
+                            'type' => self::TYPE_STRING,
+                            'optional' => false,
+                            'pattern' => null,
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -138,6 +179,42 @@ class User implements Endpoint
                     'type' => self::TYPE_STRING,
                     'optional' => false,
                     'pattern' => null,
+                ],
+            ],
+        ];
+    }
+
+    public static function get200POSTSchemaResponse(): array
+    {
+        return [
+            'headers' => [
+                'Host' => [
+                    'value' => 'localhost:8090',
+                    'type' => self::TYPE_STRING,
+                ],
+                'Connection' => [
+                    'value' => 'close',
+                    'type' => self::TYPE_STRING,
+                ],
+                'X-Powered-By' => [
+                    'value' => 'PHP/7.2.26-1+ubuntu18.04.1+deb.sury.org+1',
+                    'type' => self::TYPE_STRING,
+                ],
+                'content-type' => [
+                    'value' => 'application/json',
+                    'type' => self::TYPE_STRING,
+                ],
+            ],
+            'body' => [
+                'success' => [
+                    'type' => self::TYPE_BOOLEAN,
+                    'optional' => false,
+                ],
+                'id' => [
+                    'type' => self::TYPE_INTEGER,
+                    'optional' => false,
+                    'min' => null,
+                    'max' => null,
                 ],
             ],
         ];
