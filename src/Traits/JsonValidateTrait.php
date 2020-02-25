@@ -3,6 +3,7 @@
 namespace Genesis\BehatApiSpec\Traits;
 
 use Behat\Gherkin\Node\PyStringNode;
+use Exception;
 use Genesis\BehatApiSpec\Exception\KeyNotFoundException;
 use Genesis\BehatApiSpec\Service\RequestHandler;
 use PHPUnit\Framework\Assert;

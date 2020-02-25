@@ -150,8 +150,14 @@ class ApiSpecContext implements Context
                 );
             } catch (Exception $e) {
                 throw new Exception(sprintf(
-                    'Validation failed, error: %s, response body: %s',
+                    'Validation failed for api spec "%s"%sRequest: "%s::%d"%sError: %s%sResponse body: %s',
+                    $apiSpec,
+                    PHP_EOL,
+                    RequestHandler::getMethod(),
+                    $statusCode,
+                    PHP_EOL,
                     $e->getMessage(),
+                    PHP_EOL,
                     RequestHandler::getResponseBody()
                 ));
             }
@@ -195,7 +201,16 @@ class ApiSpecContext implements Context
             try {
                 TypeValidator::assertValue($sut, $property, $typeDetails);
             } catch (Exception $e) {
-                throw new Exception(sprintf('Validation failed for property %s, error: %s', $property, $e->getMessage()));
+                throw new Exception(sprintf('Validation failed for property "%s", error: %s', $property, $e->getMessage()));
+            }
+
+            if (!array_key_exists('type', $typeDetails)) {
+                throw new Exception(sprintf(
+                    'Invalid declaration of schema "%s::%d" "%s", each key must have a type defined.',
+                    RequestHandler::getMethod(),
+                    RequestHandler::getStatusCode(),
+                    print_r($typeDetails, true)
+                ));
             }
 
             if ($typeDetails['type'] == Endpoint::TYPE_OBJECT || $typeDetails['type'] === Endpoint::TYPE_ARRAY) {

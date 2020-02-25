@@ -11,13 +11,21 @@ class TypeValidator
 
     public static function assertValue($value, string $property, array $typeDetails)
     {
+        if (!array_key_exists('type', $typeDetails)) {
+            throw new Exception('Invalid schema declaration, each key must have a type defined.');
+        }
+
         $validator = self::getValidator($typeDetails['type']);
 
         if (!$validator) {
             throw new UnknownScalarTypeProvided($property, $typeDetails['type']);
         }
 
-        $validator::validate($value, $typeDetails);
+        try {
+            $validator::validate($value, $typeDetails);
+        } catch (Exception $e) {
+            throw new Exception(sprintf('Validator "%s" failed, error: %s', $validator, $e->getMessage()));
+        }
     }
 
     public static function assertHeaders(array $expectedHeaders, array $actualHeaders): void

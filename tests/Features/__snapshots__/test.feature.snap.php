@@ -5,7 +5,7 @@
 
 
     '201 get request\'si in spade' =>
-        '{"success":true,"msg":"Record created","id":"887987fa89s7df87as9d7f87asdf798asdf"}',
+        '{"success":true,"data":[{"msg":"Record created","id":"887987fa89s7df87as9d7f87asdf798asdf"},{"msg":"Record created","id":"887987fa89s7df87as9d7f87asdf798asdf","address":{"0":"first","jug":"15","1":"third"}},{"msg":"Record created","id":"887987fa89s7df87as9d7f87asdf798asdf","address":{"0":"first","jug":"15","1":"third"}}]}',
 
 
     '200 post request to create user' =>

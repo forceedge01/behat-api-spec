@@ -10,6 +10,9 @@ class ArrayValidator implements Validator
     public static function validate($value, array $details): void
     {
         Assert::assertIsArray($value);
-        Assert::assertIsInt(key($value));
+        Assert::assertIsInt(
+            key($value),
+            sprintf('Failed asserting that key "%s" is int, update schema to TYPE_OBJECT for json object.', key($value))
+        );
     }
 }

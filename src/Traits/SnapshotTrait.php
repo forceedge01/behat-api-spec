@@ -2,6 +2,7 @@
 
 namespace Genesis\BehatApiSpec\Traits;
 
+use Exception;
 use Genesis\BehatApiSpec\Service\RequestHandler;
 use Genesis\BehatApiSpec\Service\Snapshot;
 use Genesis\BehatApiSpec\Validators\StringValidator;
@@ -92,21 +93,24 @@ trait SnapshotTrait
             }
         }
 
-        if ($obsoleteFiles || $obsoleteSnapshots) {
+        if ($obsoleteFiles) {
             echo 'Obsolete files:' . PHP_EOL;
-            print_r($obsoleteFiles);
-            echo 'Obsolete snapshots:' . PHP_EOL;
-            print_r($obsoleteSnapshots);
-
             if (self::$updateSnapshots) {
-                echo 'Deleting obsolete files...' . PHP_EOL;
+                echo 'Deleting obsolete files...' . PHP_EOL . PHP_EOL;
                 foreach ($obsoleteFiles as $file) {
+                    echo $file . PHP_EOL;
                     unlink($file);
                 }
+            }
+        }
 
+        if ($obsoleteSnapshots) {
+            echo 'Obsolete snapshots:' . PHP_EOL;
+            if (self::$updateSnapshots) {
+                echo 'Removing snapshots...' . PHP_EOL . PHP_EOL;
                 foreach ($obsoleteSnapshots as $file => $snapshots) {
                     foreach ($snapshots as $snapshot) {
-                        echo 'Removing snapshot: ' . $snapshot;
+                        echo $snapshot . PHP_EOL;
                         Snapshot::remove($file, $snapshot);
                     }
                 }

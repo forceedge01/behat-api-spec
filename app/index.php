@@ -17,8 +17,30 @@ if (isset($_GET['exception'])) {
     http_response_code(201);
     $data = json_encode([
         'success' => true,
-        'msg' => 'Record created',
-        'id' => '887987fa89s7df87as9d7f87asdf798asdf'
+        'data' => [
+            [
+                'msg' => 'Record created',
+                'id' => '887987fa89s7df87as9d7f87asdf798asdf'
+            ],
+            [
+                'msg' => 'Record created',
+                'id' => '887987fa89s7df87as9d7f87asdf798asdf',
+                'address' => [
+                    'first',
+                    'jug' => '15',
+                    'third',
+                ]
+            ],
+            [
+                'msg' => 'Record created',
+                'id' => '887987fa89s7df87as9d7f87asdf798asdf',
+                'address' => [
+                    'first',
+                    'jug' => '15',
+                    'third',
+                ]
+            ]
+        ]
     ]);
 } else {
     http_response_code(200);

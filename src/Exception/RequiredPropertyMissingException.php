@@ -8,7 +8,7 @@ class RequiredPropertyMissingException extends Exception
 {
     public function __construct($property, $body)
     {
-        $message = sprintf('Missing required value "%s" from schema, response: %s', $property, print_r($body, true));
+        $message = sprintf('Missing required value "%s" from response schema, response: %s', $property, print_r($body, true));
         parent::__construct($message);
     }
 }

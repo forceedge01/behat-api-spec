@@ -170,15 +170,30 @@ class User implements Endpoint
                     'type' => self::TYPE_BOOLEAN,
                     'optional' => false,
                 ],
-                'msg' => [
-                    'type' => self::TYPE_STRING,
+                'data' => [
+                    'type' => self::TYPE_ARRAY,
                     'optional' => false,
-                    'pattern' => null,
-                ],
-                'id' => [
-                    'type' => self::TYPE_STRING,
-                    'optional' => false,
-                    'pattern' => null,
+                    'schema' => [
+                        '*' => [
+                            'type' => self::TYPE_OBJECT,
+                            'schema' => [
+                                'msg' => [
+                                    'type' => self::TYPE_STRING,
+                                    'optional' => false,
+                                    'pattern' => null,
+                                ],
+                                'id' => [
+                                    'type' => self::TYPE_STRING,
+                                    'optional' => false,
+                                    'pattern' => null,
+                                ],
+                                'address' => [
+                                    'type' => self::TYPE_ARRAY,
+                                    'optional' => false,
+                                ]
+                            ]
+                        ]
+                    ],
                 ],
             ],
         ];

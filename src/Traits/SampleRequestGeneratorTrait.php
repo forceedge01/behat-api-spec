@@ -2,6 +2,7 @@
 
 namespace Genesis\BehatApiSpec\Traits;
 
+use Exception;
 use Genesis\BehatApiSpec\Service\RequestHandler;
 
 trait SampleRequestGeneratorTrait
