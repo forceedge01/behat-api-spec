@@ -23,12 +23,12 @@ class User implements Endpoint
     {
         return [
             'GET' => [
-                200 => self::get200GETSchemaResponse(),
-                500 => self::get500GETSchemaResponse(),
-                201 => self::get201GETSchemaResponse(),
+                200 => self::get200GETResponseSchema(),
+                500 => self::get500GETResponseSchema(),
+                201 => self::get201GETResponseSchema(),
             ],
             'POST' => [
-                200 => self::get200POSTSchemaResponse(),
+                200 => self::get200POSTResponseSchema(),
             ],
         ];
     }
@@ -71,6 +71,10 @@ class User implements Endpoint
                     'value' => 'localhost:8090',
                     'type' => self::TYPE_STRING,
                 ],
+                'Date' => [
+                    'value' => 'Wed, 26 Feb 2020 09:55:32 GMT',
+                    'type' => self::TYPE_STRING,
+                ],
                 'Connection' => [
                     'value' => 'close',
                     'type' => self::TYPE_STRING,
@@ -98,10 +102,20 @@ class User implements Endpoint
                     'type' => self::TYPE_ARRAY,
                     'optional' => false,
                     'schema' => [
-                        '*' => [
+                        '0' => [
                             'type' => self::TYPE_STRING,
                             'optional' => false,
-                            'pattern' => '/.*/',
+                            'pattern' => null,
+                        ],
+                        'jug' => [
+                            'type' => self::TYPE_STRING,
+                            'optional' => false,
+                            'pattern' => null,
+                        ],
+                        '1' => [
+                            'type' => self::TYPE_STRING,
+                            'optional' => false,
+                            'pattern' => null,
                         ],
                     ],
                 ],
@@ -115,6 +129,10 @@ class User implements Endpoint
             'headers' => [
                 'Host' => [
                     'value' => 'localhost:8090',
+                    'type' => self::TYPE_STRING,
+                ],
+                'Date' => [
+                    'value' => 'Wed, 26 Feb 2020 09:55:32 GMT',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [
@@ -152,6 +170,10 @@ class User implements Endpoint
                     'value' => 'localhost:8090',
                     'type' => self::TYPE_STRING,
                 ],
+                'Date' => [
+                    'value' => 'Wed, 26 Feb 2020 09:55:32 GMT',
+                    'type' => self::TYPE_STRING,
+                ],
                 'Connection' => [
                     'value' => 'close',
                     'type' => self::TYPE_STRING,
@@ -174,8 +196,25 @@ class User implements Endpoint
                     'type' => self::TYPE_ARRAY,
                     'optional' => false,
                     'schema' => [
-                        '*' => [
+                        '0' => [
                             'type' => self::TYPE_OBJECT,
+                            'optional' => false,
+                            'schema' => [
+                                'msg' => [
+                                    'type' => self::TYPE_STRING,
+                                    'optional' => false,
+                                    'pattern' => null,
+                                ],
+                                'id' => [
+                                    'type' => self::TYPE_STRING,
+                                    'optional' => false,
+                                    'pattern' => null,
+                                ],
+                            ],
+                        ],
+                        '1' => [
+                            'type' => self::TYPE_OBJECT,
+                            'optional' => false,
                             'schema' => [
                                 'msg' => [
                                     'type' => self::TYPE_STRING,
@@ -189,10 +228,64 @@ class User implements Endpoint
                                 ],
                                 'address' => [
                                     'type' => self::TYPE_ARRAY,
-                                    'optional' => true,
-                                ]
-                            ]
-                        ]
+                                    'optional' => false,
+                                    'schema' => [
+                                        '0' => [
+                                            'type' => self::TYPE_STRING,
+                                            'optional' => false,
+                                            'pattern' => null,
+                                        ],
+                                        'jug' => [
+                                            'type' => self::TYPE_STRING,
+                                            'optional' => false,
+                                            'pattern' => null,
+                                        ],
+                                        '1' => [
+                                            'type' => self::TYPE_STRING,
+                                            'optional' => false,
+                                            'pattern' => null,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        '2' => [
+                            'type' => self::TYPE_OBJECT,
+                            'optional' => false,
+                            'schema' => [
+                                'msg' => [
+                                    'type' => self::TYPE_STRING,
+                                    'optional' => false,
+                                    'pattern' => null,
+                                ],
+                                'id' => [
+                                    'type' => self::TYPE_STRING,
+                                    'optional' => false,
+                                    'pattern' => null,
+                                ],
+                                'address' => [
+                                    'type' => self::TYPE_ARRAY,
+                                    'optional' => false,
+                                    'schema' => [
+                                        '0' => [
+                                            'type' => self::TYPE_STRING,
+                                            'optional' => false,
+                                            'pattern' => null,
+                                        ],
+                                        'jug' => [
+                                            'type' => self::TYPE_STRING,
+                                            'optional' => false,
+                                            'pattern' => null,
+                                        ],
+                                        '1' => [
+                                            'type' => self::TYPE_STRING,
+                                            'optional' => false,
+                                            'pattern' => null,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -205,6 +298,10 @@ class User implements Endpoint
             'headers' => [
                 'Host' => [
                     'value' => 'localhost:8090',
+                    'type' => self::TYPE_STRING,
+                ],
+                'Date' => [
+                    'value' => 'Wed, 26 Feb 2020 09:55:32 GMT',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [

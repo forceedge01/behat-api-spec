@@ -97,7 +97,7 @@ class SchemaGenerator
             $queryFunction->addLine(sprintf('\'%s\' => [', $method))->incrementTabLevel();
             foreach ($statusDetails as $statusCode => $unused) {
                 $queryFunction->addLine(sprintf(
-                    '%d => self::get%sSchemaResponse(),',
+                    '%d => self::get%sResponseSchema(),',
                     $statusCode,
                     $statusCode . $method
                 ));

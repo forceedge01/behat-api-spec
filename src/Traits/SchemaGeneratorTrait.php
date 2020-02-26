@@ -2,6 +2,7 @@
 
 namespace Genesis\BehatApiSpec\Traits;
 
+use Genesis\BehatApiSpec\Service\RequestHandler;
 use Genesis\BehatApiSpec\Service\SchemaGenerator;
 
 trait SchemaGeneratorTrait
