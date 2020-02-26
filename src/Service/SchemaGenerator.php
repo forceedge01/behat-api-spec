@@ -117,7 +117,7 @@ class SchemaGenerator
     {
         $queryFunction = StringBuilder::newInstance()
             ->newLine()
-            ->addLine('public static function get' . $statusCode . $method . 'SchemaResponse(): array')
+            ->addLine('public static function get' . $statusCode . $method . 'ResponseSchema(): array')
             ->addLine('{')
             ->incrementTabLevel()->addLine('return [')
             ->incrementTabLevel()->addLine("'headers' => [")

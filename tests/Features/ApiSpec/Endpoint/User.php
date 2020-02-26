@@ -63,7 +63,7 @@ class User implements Endpoint
         ];
     }
 
-    public static function get200GETSchemaResponse(): array
+    public static function get200GETResponseSchema(): array
     {
         return [
             'headers' => [
@@ -72,7 +72,7 @@ class User implements Endpoint
                     'type' => self::TYPE_STRING,
                 ],
                 'Date' => [
-                    'value' => 'Wed, 26 Feb 2020 09:55:32 GMT',
+                    'value' => 'Wed, 26 Feb 2020 10:00:24 GMT',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [
@@ -123,7 +123,7 @@ class User implements Endpoint
         ];
     }
 
-    public static function get500GETSchemaResponse(): array
+    public static function get500GETResponseSchema(): array
     {
         return [
             'headers' => [
@@ -132,7 +132,7 @@ class User implements Endpoint
                     'type' => self::TYPE_STRING,
                 ],
                 'Date' => [
-                    'value' => 'Wed, 26 Feb 2020 09:55:32 GMT',
+                    'value' => 'Wed, 26 Feb 2020 10:00:24 GMT',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [
@@ -162,7 +162,7 @@ class User implements Endpoint
         ];
     }
 
-    public static function get201GETSchemaResponse(): array
+    public static function get201GETResponseSchema(): array
     {
         return [
             'headers' => [
@@ -171,7 +171,7 @@ class User implements Endpoint
                     'type' => self::TYPE_STRING,
                 ],
                 'Date' => [
-                    'value' => 'Wed, 26 Feb 2020 09:55:32 GMT',
+                    'value' => 'Wed, 26 Feb 2020 10:00:24 GMT',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [
@@ -292,7 +292,7 @@ class User implements Endpoint
         ];
     }
 
-    public static function get200POSTSchemaResponse(): array
+    public static function get200POSTResponseSchema(): array
     {
         return [
             'headers' => [
@@ -301,7 +301,7 @@ class User implements Endpoint
                     'type' => self::TYPE_STRING,
                 ],
                 'Date' => [
-                    'value' => 'Wed, 26 Feb 2020 09:55:32 GMT',
+                    'value' => 'Wed, 26 Feb 2020 10:00:24 GMT',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [

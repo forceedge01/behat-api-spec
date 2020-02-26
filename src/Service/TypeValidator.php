@@ -4,6 +4,8 @@ namespace Genesis\BehatApiSpec\Service;
 
 use Exception;
 use Genesis\BehatApiSpec\Exception\UnknownScalarTypeProvided;
+use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\ExpectationFailedException;
 
 class TypeValidator
 {
@@ -24,16 +26,23 @@ class TypeValidator
         try {
             $validator::validate($value, $typeDetails);
         } catch (Exception $e) {
-            throw new Exception(sprintf('Validator "%s" failed, error: %s', $validator, $e->getMessage()));
+            $message = $e->getMessage();
+            if ($e instanceof ExpectationFailedException && $e->getComparisonFailure()) {
+                $message .= PHP_EOL . $e->getComparisonFailure()->getDiff();
+            }
+
+            throw new Exception(sprintf('Validator "%s" failed, error: %s', $validator, $message));
         }
     }
 
     public static function assertHeaders(array $expectedHeaders, array $actualHeaders): void
     {
         foreach ($expectedHeaders as $expectedHeader => $headerDetail) {
-            if (!isset($actualHeaders[$expectedHeader])) {
-                throw new Exception(sprintf('Validation failed for header %s, error: Header not set.', $expectedHeader));
-            }
+            Assert::arrayHasKey(
+                $expectedHeader,
+                $actualHeaders,
+                sprintf('Validation failed for header %s, error: Header not set.', $expectedHeader)
+            );
 
             try {
                 self::assertValue($actualHeaders[$expectedHeader][0], $expectedHeader, $headerDetail);
