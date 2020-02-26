@@ -11,6 +11,14 @@ use PHPUnit\Framework\Assert;
 trait JsonValidateTrait
 {
     /**
+     * @Then I expect the following JSON response:
+     */
+    public function shouldlHaveTheContent(PyStringNode $expectedResponse)
+    {
+        Assert::assertSame(RequestHandler::getResponseBody(), (string) $expectedResponse);
+    }
+
+    /**
      * @Then I expect the following content in the :format response :key key:
      */
     public function shouldHaveTheFollowingInTheResponse(string $format, string $key, PyStringNode $response)
