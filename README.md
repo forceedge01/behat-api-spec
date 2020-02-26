@@ -64,42 +64,53 @@ And the response should match the snapshot
 
 The `When I make a POST request to "User" endpoint` will initially auto scaffold schema using the response and insert it into the endpoint file you've declared above. On subsequent calls this schema will be used to validate the response, providing protection against regression. A sample schema can be as follows for the response of a GET request with 200 response `{"success": false, "error": "Something went wrong."}`:
 
-```
-public function getSchema(): array
+```php
+<?php
+
+namespace ...;
+
+use Genesis\BehatApiSpec\Contracts\Endpoint;
+
+class User implements Endpoint
 {
-    'GET' => [
-        200 => [
-            'headers' => [
-                'Host' => [
-                    'value' => 'localhost:8090',
-                    'type' => self::TYPE_STRING,
+    ...
+
+    public function getResponseSchema(): array
+    {
+        'GET' => [
+            200 => [
+                'headers' => [
+                    'Host' => [
+                        'value' => 'localhost:8090',
+                        'type' => self::TYPE_STRING,
+                    ],
+                    'Connection' => [
+                        'value' => 'close',
+                        'type' => self::TYPE_STRING,
+                    ],
+                    'X-Powered-By' => [
+                        'value' => 'PHP/7.2.26-1+ubuntu18.04.1+deb.sury.org+1',
+                        'type' => self::TYPE_STRING,
+                    ],
+                    'content-type' => [
+                        'value' => 'application/json',
+                        'type' => self::TYPE_STRING,
+                    ],
                 ],
-                'Connection' => [
-                    'value' => 'close',
-                    'type' => self::TYPE_STRING,
+                'body' => [
+                    'success' => [
+                        'type' => self::TYPE_BOOLEAN,
+                        'optional' => false,
+                    ],
+                    'error' => [
+                        'type' => self::TYPE_STRING,
+                        'optional' => false,
+                        'pattern' => null,
+                    ],
                 ],
-                'X-Powered-By' => [
-                    'value' => 'PHP/7.2.26-1+ubuntu18.04.1+deb.sury.org+1',
-                    'type' => self::TYPE_STRING,
-                ],
-                'content-type' => [
-                    'value' => 'application/json',
-                    'type' => self::TYPE_STRING,
-                ],
-            ],
-            'body' => [
-                'success' => [
-                    'type' => self::TYPE_BOOLEAN,
-                    'optional' => false,
-                ],
-                'error' => [
-                    'type' => self::TYPE_STRING,
-                    'optional' => false,
-                    'pattern' => null,
-                ],
-            ],
+            ]
         ]
-    ]
+    }
 }
 
 ```
