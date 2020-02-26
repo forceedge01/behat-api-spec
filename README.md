@@ -57,9 +57,10 @@ class User implements Endpoint
 Add step definition to feature file
 
 ```gherkin
-When I make a POST request to "User" endpoint
-Then I expect a 200 "User" response
-And the response should match the snapshot
+Scenario: 200 user response
+    When I make a POST request to "User" endpoint
+    Then I expect a 500 "User" response
+    And the response should match the snapshot
 ```
 
 The `When I make a POST request to "User" endpoint` will initially auto scaffold schema using the response and insert it into the endpoint file you've declared above. On subsequent calls this schema will be used to validate the response, providing protection against regression. A sample schema can be as follows for the response of a GET request with 200 response `{"success": false, "error": "Something went wrong."}`:
@@ -78,7 +79,7 @@ class User implements Endpoint
     public function getResponseSchema(): array
     {
         'GET' => [
-            200 => [
+            500 => [
                 'headers' => [
                     'Host' => [
                         'value' => 'localhost:8090',
@@ -117,7 +118,20 @@ class User implements Endpoint
 
 Adjust accordingly.
 
-Following on from this the `And the response should match the snapshot` will generate a snapshot automatically storing the response against the scenario title. This will be stored in the same directory as the test. This file should be committed with the code to allow it to be peer reviewed to be verified. Upon subsequent requests, the response will be matched with this response, any difference will generate a failure. You have either a chance to update the snapshot automatically using the `--update-snapshots` or `-u` flag or fix the issue in the API. Any out of date snapshots will be identified and updated with the flag appropriately.
+Snapshots
+---------
+
+Following on from this the `And the response should match the snapshot` will generate a snapshot automatically storing the response against the scenario title. This will be stored in the same directory as the test. This file should be committed with the code to allow it to be peer reviewed. Upon subsequent requests, the response will be matched with this snapshot, any difference will generate a failure. You have either the option to update the snapshot automatically using the `--update-snapshots`, `-u` flag or fix the issue in the API. Any out of date snapshots will be identified and updated with the flag appropriately. Example snapshot:
+
+```
+<?php return [
+
+    '500 user response' =>
+        '{"success":false,"error":"Something went wrong."}',
+
+];
+
+```
 
 Generating sample requests
 --------------------------
