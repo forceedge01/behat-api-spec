@@ -104,6 +104,8 @@ public function getSchema(): array
 
 ```
 
+Adjust accordingly.
+
 Following on from this the `And the response should match the snapshot` will generate a snapshot automatically storing the response against the scenario title. This will be stored in the same directory as the test. This file should be committed with the code to allow it to be peer reviewed to be verified. Upon subsequent requests, the response will be matched with this response, any difference will generate a failure. You have either a chance to update the snapshot automatically using the `--update-snapshots` or `-u` flag or fix the issue in the API. Any out of date snapshots will be identified and updated with the flag appropriately.
 
 Generating sample requests
