@@ -14,7 +14,7 @@ trait SampleRequestGeneratorTrait
         self::$sampleRequestFormat = $format;
     }
 
-    public function handleSampleRequest(string $format)
+    public function handleSampleRequest(string $format, string $method, array $headers, string $body, string $url)
     {
         switch (self::$sampleRequestFormat) {
             case 'curl':
@@ -26,7 +26,7 @@ trait SampleRequestGeneratorTrait
                     }
                 }
                 if ($body) {
-                    $command .= ' -d \'' . (string) $body . '\'';
+                    $command .= ' -d \'' . $body . '\'';
                 }
                 $command .= " '" . RequestHandler::getBaseUrl() . $url . "'";
                 echo $command;

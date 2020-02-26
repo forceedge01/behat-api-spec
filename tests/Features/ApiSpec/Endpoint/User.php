@@ -19,7 +19,7 @@ class User implements Endpoint
         ];
     }
 
-    public static function getSchema(): array
+    public static function getResponseSchema(): array
     {
         return [
             'GET' => [
@@ -33,33 +33,35 @@ class User implements Endpoint
         ];
     }
 
-    public static function getQueryParams(): array
+    public static function getRequestSchema(): array
     {
         return [
-            'test' => [
-                'type' => self::TYPE_STRING,
-                'description' => '',
-                'example' => 'true',
-                'pattern' => '',
-            ],
-            'exception' => [
-                'type' => self::TYPE_STRING,
-                'description' => '',
-                'example' => '1',
-                'pattern' => '',
-            ],
-            'error' => [
-                'type' => self::TYPE_STRING,
-                'description' => '',
-                'example' => 'message is bad',
-                'pattern' => '',
-            ],
-            'errorCode' => [
-                'type' => self::TYPE_STRING,
-                'description' => '',
-                'example' => '503',
-                'pattern' => '',
-            ],
+            'queryParams' => [
+                'test' => [
+                    'type' => self::TYPE_STRING,
+                    'description' => '',
+                    'example' => 'true',
+                    'pattern' => '',
+                ],
+                'exception' => [
+                    'type' => self::TYPE_STRING,
+                    'description' => '',
+                    'example' => '1',
+                    'pattern' => '',
+                ],
+                'error' => [
+                    'type' => self::TYPE_STRING,
+                    'description' => '',
+                    'example' => 'message is bad',
+                    'pattern' => '',
+                ],
+                'errorCode' => [
+                    'type' => self::TYPE_STRING,
+                    'description' => '',
+                    'example' => '503',
+                    'pattern' => '',
+                ],
+            ]
         ];
     }
 
@@ -69,10 +71,6 @@ class User implements Endpoint
             'headers' => [
                 'Host' => [
                     'value' => 'localhost:8090',
-                    'type' => self::TYPE_STRING,
-                ],
-                'Date' => [
-                    'value' => 'Wed, 26 Feb 2020 10:00:24 GMT',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [
@@ -131,10 +129,6 @@ class User implements Endpoint
                     'value' => 'localhost:8090',
                     'type' => self::TYPE_STRING,
                 ],
-                'Date' => [
-                    'value' => 'Wed, 26 Feb 2020 10:00:24 GMT',
-                    'type' => self::TYPE_STRING,
-                ],
                 'Connection' => [
                     'value' => 'close',
                     'type' => self::TYPE_STRING,
@@ -168,10 +162,6 @@ class User implements Endpoint
             'headers' => [
                 'Host' => [
                     'value' => 'localhost:8090',
-                    'type' => self::TYPE_STRING,
-                ],
-                'Date' => [
-                    'value' => 'Wed, 26 Feb 2020 10:00:24 GMT',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [
@@ -298,10 +288,6 @@ class User implements Endpoint
             'headers' => [
                 'Host' => [
                     'value' => 'localhost:8090',
-                    'type' => self::TYPE_STRING,
-                ],
-                'Date' => [
-                    'value' => 'Wed, 26 Feb 2020 10:00:24 GMT',
                     'type' => self::TYPE_STRING,
                 ],
                 'Connection' => [

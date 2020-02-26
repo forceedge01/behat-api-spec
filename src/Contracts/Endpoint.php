@@ -18,6 +18,15 @@ interface Endpoint
     const TYPE_ENUM = 'enum';
     const TYPE_CALLBACK = 'callback';
 
+    const _HEADERS = 'headers';
+    const _BODY = 'body';
+    const _QUERY_PARAMS = 'queryParams';
+    const _SCHEMA = 'schema';
+    const _TEMPLATE = '*';
+    const _TYPE = 'type';
+    const _OPTIONAL = 'optional';
+    const _PATTERN = 'pattern';
+
     public static function getEndpoint(): string;
 
     public static function getHeaders(): array;

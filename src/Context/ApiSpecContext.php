@@ -84,7 +84,7 @@ class ApiSpecContext implements Context
         $this->resetState();
 
         if (self::$sampleRequestFormat) {
-            $this->handleSampleRequest(self::$sampleRequestFormat);
+            $this->handleSampleRequest(self::$sampleRequestFormat, $method, $headers, (string) $body, $url);
         }
     }
 
@@ -114,7 +114,7 @@ class ApiSpecContext implements Context
             throw new Exception('Not an apiSpec class: ' . $apiSec);
         }
 
-        if (!method_exists($apiSpec, 'getSchema')) {
+        if (!method_exists($apiSpec, 'getResponseSchema')) {
             echo sprintf('Scaffolding schema for endpoint: %s...', $apiSpec);
             if (!$this->schemaExists($apiSpec)) {
                 $this->addSchema(
@@ -125,7 +125,7 @@ class ApiSpecContext implements Context
                 ->addQueryParam($apiSpec, SchemaGenerator::scaffoldQueryParams(RequestHandler::getUri()));
             }
         } else {
-            $schema = new Schema($apiSpec::getSchema());
+            $schema = new Schema($apiSpec::getResponseSchema());
             if (!$schema->hasSchema(RequestHandler::getMethod(), RequestHandler::getStatusCode())) {
                 echo SchemaGenerator::suggestSchema(
                     RequestHandler::getMethod(),

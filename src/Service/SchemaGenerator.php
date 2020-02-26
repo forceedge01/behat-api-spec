@@ -25,10 +25,12 @@ class SchemaGenerator
     {
         $queryFunction = StringBuilder::newInstance()
             ->newLine()
-            ->addLine('public static function getQueryParams(): array')
+            ->addLine('public static function getRequestSchema(): array')
             ->addLine('{')
             ->incrementTabLevel()
             ->addLine('return [')
+            ->incrementTabLevel()
+            ->addLine("'queryParams' => [")
             ->incrementTabLevel();
 
         foreach ($queryParams as $param => $value) {
@@ -44,6 +46,8 @@ class SchemaGenerator
         }
 
         $queryFunction
+            ->decrementTabLevel()
+            ->addLine(']')
             ->decrementTabLevel()
             ->addLine('];')
             ->decrementTabLevel()
@@ -87,7 +91,7 @@ class SchemaGenerator
     public static function createSchemaHandlerFunction(array $details): string
     {
         $queryFunction = StringBuilder::newInstance()
-            ->addLine('public static function getSchema(): array')
+            ->addLine('public static function getResponseSchema(): array')
             ->addLine('{')
             ->incrementTabLevel()
             ->addLine('return [')
