@@ -123,7 +123,7 @@ Snapshots
 
 Following on from this the `And the response should match the snapshot` will generate a snapshot automatically storing the response against the scenario title. This will be stored in the same directory as the test. This file should be committed with the code to allow it to be peer reviewed. Upon subsequent requests, the response will be matched with this snapshot, any difference will generate a failure. You have either the option to update the snapshot automatically using the `--update-snapshots`, `-u` flag or fix the issue in the API. Any out of date snapshots will be identified and updated with the flag appropriately. Example snapshot:
 
-```
+```php
 <?php return [
 
     '500 user response' =>
