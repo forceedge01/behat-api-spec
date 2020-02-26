@@ -101,7 +101,7 @@ class User implements Endpoint
                         '*' => [
                             'type' => self::TYPE_STRING,
                             'optional' => false,
-                            'pattern' => null,
+                            'pattern' => '/.*/',
                         ],
                     ],
                 ],
@@ -189,7 +189,7 @@ class User implements Endpoint
                                 ],
                                 'address' => [
                                     'type' => self::TYPE_ARRAY,
-                                    'optional' => false,
+                                    'optional' => true,
                                 ]
                             ]
                         ]

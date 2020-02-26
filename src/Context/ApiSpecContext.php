@@ -180,6 +180,9 @@ class ApiSpecContext implements Context
             if ($property === '*') {
                 foreach ($body as $index => $sut) {
                     TypeValidator::assertValue($sut, $index, $typeDetails);
+                    if ($this->isLoopableType($typeDetails)) {
+                        $this->validate($sut, $typeDetails['schema']);
+                    }
                 }
                 continue;
             }
@@ -189,7 +192,7 @@ class ApiSpecContext implements Context
             }
 
             if (!array_key_exists($property, $body)) {
-                if (!isset($typeDetails['optional']) || $typeDetails['optional'] !== true) {
+                if (!$this->isPropertyOptional($typeDetails)) {
                     throw new RequiredPropertyMissingException($property, $body);
                 }
 
@@ -204,19 +207,44 @@ class ApiSpecContext implements Context
                 throw new Exception(sprintf('Validation failed for property "%s", error: %s', $property, $e->getMessage()));
             }
 
-            if (!array_key_exists('type', $typeDetails)) {
-                throw new Exception(sprintf(
-                    'Invalid declaration of schema "%s::%d" "%s", each key must have a type defined.',
-                    RequestHandler::getMethod(),
-                    RequestHandler::getStatusCode(),
-                    print_r($typeDetails, true)
-                ));
-            }
+            $this->enforceTypeInSchema($typeDetails);
 
-            if ($typeDetails['type'] == Endpoint::TYPE_OBJECT || $typeDetails['type'] === Endpoint::TYPE_ARRAY) {
+            if ($this->isLoopableType($typeDetails)) {
                 $this->validate($sut, $typeDetails['schema']);
             }
         }
+    }
+
+    private function isPropertyOptional(array $typeDetails)
+    {
+        if (isset($typeDetails['optional']) && $typeDetails['optional'] === true) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function enforceTypeInSchema(array $typeDetails)
+    {
+        if (!array_key_exists('type', $typeDetails)) {
+            throw new Exception(sprintf(
+                'Invalid declaration of schema "%s::%d" "%s", each key must have a type defined.',
+                RequestHandler::getMethod(),
+                RequestHandler::getStatusCode(),
+                print_r($typeDetails, true)
+            ));
+        }
+    }
+
+    private function isLoopableType(array $typeDetails): bool
+    {
+        if ($typeDetails['type'] == Endpoint::TYPE_OBJECT || $typeDetails['type'] === Endpoint::TYPE_ARRAY) {
+            if (array_key_exists('schema', $typeDetails)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function getApiSpecEndpointClass(string $class): string
