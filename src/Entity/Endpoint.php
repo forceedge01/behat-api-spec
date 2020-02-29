@@ -75,7 +75,7 @@ class Endpoint
                 $requests[$method][0] = $this->getSampleCurlRequest(
                     $method,
                     $this->getDefaultHeaders(),
-                    '',
+                    strtoupper($method) === 'POST' ? '{...}' : '',
                     $this->getEndpoint() . (strtoupper($method) === 'GET' ? $this->getRequestQueryParamsAsString() : ''),
                     htmlspecialchars('<ApiEndpoint>')
                 );

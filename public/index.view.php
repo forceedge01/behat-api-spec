@@ -27,9 +27,9 @@
                         <ul>
                             <?php foreach ($endpoints as $key => $endpoint): ?>
                                 <li>
-                                    <?php echo $endpoint->getClassName(); ?> Group
+                                    <h3><?php echo $endpoint->getClassName(); ?> Group</h3>
                                     <hr />
-                                    Endpoint Uri: <?php echo $endpoint->getEndpoint(); ?>
+                                    <h5>Endpoint Uri: <?php echo $endpoint->getEndpoint(); ?></h5>
                                     <?php getPartial('defaultHeaders', [
                                         'defaultHeaders' => $endpoint->getDefaultHeaders()
                                     ]); ?>
@@ -38,6 +38,9 @@
                                     ]); ?>
                                     <?php getPartial('sampleRequest', [
                                         'sampleRequests' => $endpoint->getSampleRequests()
+                                    ]); ?>
+                                    <?php getPartial('response', [
+                                        'responses' => $endpoint->getResponseSchemas()
                                     ]); ?>
                                 </li>
                             <?php endforeach; ?>

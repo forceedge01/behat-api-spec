@@ -51,7 +51,7 @@ class User implements Endpoint
                 ],
                 'error' => [
                     'type' => self::TYPE_STRING,
-                    'description' => '',
+                    'description' => 'A custom error message.',
                     'example' => 'message is bad',
                     'pattern' => '',
                 ],
