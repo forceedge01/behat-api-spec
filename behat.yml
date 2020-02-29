@@ -11,12 +11,12 @@ default:
     Cjm\Behat\LocalWebserverExtension:
       host : localhost   # defaults to 'localhost'
       port : 8090            # defaults to '8000'
-      docroot: app     # defaults to '%paths.base%/web'
+      docroot: tests/app     # defaults to '%paths.base%/web'
     Genesis\BehatApiSpec\Extension:
       baseUrl: http://localhost:8090/index.php
       specMappings:
         endpoint: \Genesis\ApiSpecTests\Features\ApiSpec\Endpoint\
-        schema: \Genesis\ApiSpecTests\Features\ApiSpec\Schema\
+        path: ./tests/Features/ApiSpec/Endpoint/
     FailAid\Extension:
       screenshot:
         directory: ./features/failures

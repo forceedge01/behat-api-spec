@@ -3,7 +3,6 @@
 namespace Genesis\BehatApiSpec\Service;
 
 use Psr\Http\Message\UriInterface;
-use ReflectionClass;
 
 class SchemaGenerator
 {
@@ -138,7 +137,7 @@ class SchemaGenerator
 
     public static function appendSchemaToEndpointSpec(string $apiSpec, string $schema): void
     {
-        $file = self::getFilename($apiSpec);
+        $file = EndpointProvider::getFilename($apiSpec);
         $contents = file_get_contents($file);
         $contents = preg_replace('/(.*)}/su', '${1}' . PHP_EOL . $schema . PHP_EOL . '}', $contents);
 
@@ -200,10 +199,5 @@ class SchemaGenerator
         }
 
         return $getSchemaMethod;
-    }
-
-    private static function getFilename(string $class): string
-    {
-        return (new ReflectionClass($class))->getFileName();
     }
 }

@@ -9,6 +9,7 @@ use Exception;
 use Genesis\BehatApiSpec\Contracts\Endpoint;
 use Genesis\BehatApiSpec\Entity\Schema;
 use Genesis\BehatApiSpec\Exception\RequiredPropertyMissingException;
+use Genesis\BehatApiSpec\Service\EndpointProvider;
 use Genesis\BehatApiSpec\Service\RequestHandler;
 use Genesis\BehatApiSpec\Service\SchemaGenerator;
 use Genesis\BehatApiSpec\Service\TypeValidator;
@@ -36,6 +37,8 @@ class ApiSpecContext implements Context
     public static function setSpecOptions(string $baseUrl, array $mappings): void
     {
         RequestHandler::setBaseUrl($baseUrl);
+        EndpointProvider::setBaseNamespace($mappings['endpoint']);
+        EndpointProvider::setBasePath($mappings['path'] ?? '');
         self::$mappings = $mappings;
     }
 
@@ -77,14 +80,21 @@ class ApiSpecContext implements Context
      */
     public function sendRequest($method, $endpoint, PyStringNode $body = null, string $queryString = null): void
     {
-        $endpoint = $this->getApiSpecEndpointClass($endpoint);
+        $endpoint = EndpointProvider::getApiSpecEndpointClass($endpoint);
         $headers = array_merge($this->headers, $endpoint::getHeaders());
         $url = $endpoint::getEndpoint() . ($queryString ? '?' . $queryString : '');
         RequestHandler::sendRequest($method, $url, $headers, (string) $body);
         $this->resetState();
 
         if (self::$sampleRequestFormat) {
-            $this->handleSampleRequest(self::$sampleRequestFormat, $method, $headers, (string) $body, $url);
+            $this->handleSampleRequest(
+                self::$sampleRequestFormat,
+                $method,
+                $headers,
+                (string) $body,
+                $url,
+                RequestHandler::getBaseUrl()
+            );
         }
     }
 
@@ -108,7 +118,7 @@ class ApiSpecContext implements Context
     public function validateResponse($statusCode, $apiSpec, PyStringNode $expectedResponse = null): void
     {
         $statusCode = (int) $statusCode;
-        $apiSpec = $this->getApiSpecEndpointClass($apiSpec);
+        $apiSpec = EndpointProvider::getApiSpecEndpointClass($apiSpec);
 
         if (!(in_array(EndPoint::class, class_implements($apiSpec)))) {
             throw new Exception('Not an apiSpec class: ' . $apiSec);
@@ -245,11 +255,6 @@ class ApiSpecContext implements Context
         }
 
         return false;
-    }
-
-    private function getApiSpecEndpointClass(string $class): string
-    {
-        return self::$mappings['endpoint'] . $class;
     }
 }
 

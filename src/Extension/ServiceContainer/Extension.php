@@ -67,6 +67,7 @@ class Extension implements ExtensionInterface
                 ->arrayNode('specMappings')
                     ->children()
                         ->scalarNode('endpoint')->isRequired()->end()
+                        ->scalarNode('path')->defaultNull()->end()
                         ->scalarNode('schema')->defaultNull()->end()
                 ->end()
             ->end()
