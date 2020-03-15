@@ -1,4 +1,13 @@
 {
+    "name": "genesis/behat-api-spec",
+    "description": "Generate api specs/snapshots in a heartbeat.",
+    "keywords": ["API testing", "testing", "behat api", "api snapshot", "snapshot", "snapshot testing"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Abdul Wahhab Qureshi"
+        }
+    ],
     "require": {
         "behat/behat": "~3.5",
         "imbo/behat-api-extension": "~2.3",

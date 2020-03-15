@@ -4,7 +4,7 @@
     <ul>
     <?php foreach ($sampleRequests as $method => $methodSchema): ?>
         <?php foreach ($methodSchema as $statusCode => $request): ?>
-            <span class="row"><?php echo $request; ?></span>
+            <span class="row code console"><?php echo $request; ?></span>
         <?php endforeach; ?>
     <?php endforeach; ?>
     </ul>

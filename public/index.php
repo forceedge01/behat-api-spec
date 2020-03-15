@@ -35,5 +35,39 @@ function has($index, array $details)
     return array_key_exists($index, $details);
 }
 
+function formatCode(array $code): string
+{
+    $string = '';
+    foreach ($code as $heading => $value) {
+        $string .= '<fieldset><legend>' . $heading . '</legend>';
+        if (is_array($value)) {
+            $string .= formatInternal($value);
+        } else {
+            $string .= $value;
+        }
+        $string .= '</fieldse><br />';
+    }
+
+    return $string;
+}
+
+function formatInternal(array $code): string
+{
+    $string = '';
+    foreach ($code as $heading => $value) {
+
+        if (is_array($value)) {
+            $string .= $heading . ' => ';
+            $string .= formatInternal($value);
+        } else {
+            $string .= $heading . ' => ';
+            $string .= $value;
+            $string .= '<br />';
+        }
+    }
+
+    return $string;
+}
+
 require __DIR__ . '/index.view.php';
 exit;
