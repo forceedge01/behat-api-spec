@@ -43,7 +43,7 @@ class User implements Endpoint
         return '/users';
     }
 
-    public static function getHeaders(): array
+    public static function getRequestHeaders(): array
     {
         return [
             'accept-language' => 'en',
@@ -58,7 +58,7 @@ Add step definition to feature file
 
 ```gherkin
 Scenario: 200 user response
-    When I make a POST request to "User" endpoint
+    When I make a POST request to the "User" endpoint
     Then I expect a 500 "User" response
     And the response should match the snapshot
 ```
