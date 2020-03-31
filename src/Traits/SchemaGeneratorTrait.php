@@ -58,10 +58,8 @@ trait SchemaGeneratorTrait
 
     private function addQueryParam(string $apiSpec, array $params): self
     {
+        self::$queryParams[$apiSpec] = [];
         if ($params) {
-            if (!isset(self::$queryParams[$apiSpec])) {
-                self::$queryParams[$apiSpec] = [];
-            }
             self::$queryParams[$apiSpec] = array_merge($params, self::$queryParams[$apiSpec]);
         }
 

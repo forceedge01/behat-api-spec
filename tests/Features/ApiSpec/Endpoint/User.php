@@ -11,7 +11,7 @@ class User implements Endpoint
         return '/users';
     }
 
-    public static function getHeaders(): array
+    public static function getRequestHeaders(): array
     {
         return [
             'accept-language' => 'en',

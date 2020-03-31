@@ -29,5 +29,5 @@ interface Endpoint
 
     public static function getEndpoint(): string;
 
-    public static function getHeaders(): array;
+    public static function getRequestHeaders(): array;
 }

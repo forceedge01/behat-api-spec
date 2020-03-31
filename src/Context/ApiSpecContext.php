@@ -73,15 +73,15 @@ class ApiSpecContext implements Context
     }
 
     /**
-     * @When I make a :method request to :arg1 endpoint
-     * @When I make a :method request to :arg1 endpoint with body:
-     * @When I make a :method request to :arg1 endpoint with query string :queryString
-     * @When I make a :method request to :arg1 endpoint with query string :queryString and body:
+     * @When I make a :method request to the :arg1 endpoint
+     * @When I make a :method request to the :arg1 endpoint with body:
+     * @When I make a :method request to the :arg1 endpoint with query string :queryString
+     * @When I make a :method request to the :arg1 endpoint with query string :queryString and body:
      */
     public function sendRequest($method, $endpoint, PyStringNode $body = null, string $queryString = null): void
     {
         $endpoint = EndpointProvider::getApiSpecEndpointClass($endpoint);
-        $headers = array_merge($this->headers, $endpoint::getHeaders());
+        $headers = array_merge($this->headers, $endpoint::getRequestHeaders());
         $url = $endpoint::getEndpoint() . ($queryString ? '?' . $queryString : '');
         RequestHandler::sendRequest($method, $url, $headers, (string) $body);
         $this->resetState();

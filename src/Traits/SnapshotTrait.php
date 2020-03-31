@@ -9,17 +9,23 @@ use Genesis\BehatApiSpec\Validators\StringValidator;
 
 trait SnapshotTrait
 {
-    private static $validSnapshots;
+    private static $validSnapshots = [];
 
     private static $updateSnapshots;
 
     private static $updatedSnapshots = 0;
+
+    private static $isSnapshotScenario = false;
 
     /**
      * @AfterScenario
      */
     public function storeObsoleteFiles()
     {
+        if (!self::$isSnapshotScenario) {
+            return;
+        }
+
         self::$validSnapshots[Snapshot::getSnapshotPath(self::$currentScenario)][] = Snapshot::getSnapshotTitle(self::$currentScenario);
     }
 
@@ -51,6 +57,8 @@ trait SnapshotTrait
             echo 'Generating snapshot: ' . $title;
             Snapshot::save($path, $title, $actualResponse);
         }
+
+        self::$isSnapshotScenario = true;
     }
 
     /**
