@@ -39,29 +39,39 @@ class RequestHandler
         }
     }
 
-    public static function getMethod(): string
+    public static function getMethod(): ?string
     {
-        return self::$request->getMethod();
+        return self::$request ? self::$request->getMethod() : null;
     }
 
-    public static function getResponseBody(): string
+    public static function getResponseBody(): ?string
     {
-        return (string) self::$response->getBody();
+        return self::$response ? (string) self::$response->getBody() : null;
     }
 
-    public static function getStatusCode(): int
+    public static function getStatusCode(): ?int
     {
-        return self::$response->getStatusCode();
+        return self::$response ? self::$response->getStatusCode() : null;
     }
 
     public static function getHeaders(): array
     {
-        return self::$response->getHeaders();
+        return self::$response ? self::$response->getHeaders() : [];
     }
 
-    public static function getUri(): UriInterface
+    public static function getRequestHeaders(): array
     {
-        return self::$request->getUri();
+        return self::$request ? self::$request->getHeaders() : [];
+    }
+
+    public static function getRequestBody()
+    {
+        return self::$request ? self::$request->getBody() : null;
+    }
+
+    public static function getUri(): ?UriInterface
+    {
+        return self::$request ? self::$request->getUri() : null;
     }
 
     private static function getClient(array $config = []): ClientInterface
@@ -73,14 +83,6 @@ class RequestHandler
 
     private static function createRequest(string $method, string $endpoint, array $headers, string $body): RequestInterface
     {
-        $request = new Request($method, self::$baseUrl . $endpoint);
-
-        foreach ($headers as $header => $value) {
-            $request->withHeader($header, $value);
-        }
-
-        $request->withBody(Psr7\stream_for($body));
-
-        return $request;
+        return new Request($method, self::$baseUrl . $endpoint, $headers, Psr7\stream_for($body));
     }
 }

@@ -4,4 +4,4 @@ app:
 
 .PHONY: tests
 tests:
-	./vendor/bin/behat
+	docker-compose up
