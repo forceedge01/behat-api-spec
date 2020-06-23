@@ -9,6 +9,7 @@
         }
     ],
     "require": {
+        "php": "~7.2",
         "behat/behat": "~3.5",
         "imbo/behat-api-extension": "~2.3",
         "behat/mink-goutte-driver": "^1.2",
@@ -28,5 +29,8 @@
         "psr-4": {
             "Genesis\\ApiSpecTests\\": "tests/"
         }
+    },
+    "scripts": {
+        "tests": "./vendor/bin/behat"
     }
 }

@@ -30,9 +30,42 @@ trait SnapshotTrait
     }
 
     /**
-     * @Then the response should match the snapshot
+     * @Then the response should match the snapshot pattern
      */
     public function theResponseShouldMatchTheSnapshot()
+    {
+        $title = Snapshot::getSnapshotTitle(self::$currentScenario);
+        $path = Snapshot::getSnapshotPath(self::$currentScenario);
+        $actualResponse = RequestHandler::getResponseBody();
+        Snapshot::createSnapshotDir($path);
+
+        if (Snapshot::exists($path, $title)) {
+            $expected = Snapshot::getSnapshot($path, $title);
+            try {
+                StringValidator::validate($actualResponse, ['pattern' => $expected]);
+            } catch (Exception $e) {
+                if (! self::$updateSnapshots) {
+                    echo 'Update snapshot with --update-snapshots or -u flag.';
+                    throw $e;
+                }
+
+                echo 'Updating snapshot... ';
+                Snapshot::save($path, $title, $actualResponse);
+                self::$updatedSnapshots++;
+            }
+        } else {
+            echo 'Generating snapshot: ' . $title;
+            Snapshot::save($path, $title, $actualResponse);
+        }
+
+        self::$isSnapshotScenario = true;
+    }
+
+
+    /**
+     * @Then the response should match the snapshot
+     */
+    public function theResponseShouldEqualTheSnapshot()
     {
         $title = Snapshot::getSnapshotTitle(self::$currentScenario);
         $path = Snapshot::getSnapshotPath(self::$currentScenario);

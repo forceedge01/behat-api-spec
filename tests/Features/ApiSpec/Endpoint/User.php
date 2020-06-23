@@ -78,7 +78,7 @@ class User implements Endpoint
                     'type' => self::TYPE_STRING,
                 ],
                 'X-Powered-By' => [
-                    'value' => 'PHP/7.2.26-1+ubuntu18.04.1+deb.sury.org+1',
+                    'value' => 'PHP/7.2.31',
                     'type' => self::TYPE_STRING,
                 ],
                 'content-type' => [
@@ -134,7 +134,7 @@ class User implements Endpoint
                     'type' => self::TYPE_STRING,
                 ],
                 'X-Powered-By' => [
-                    'value' => 'PHP/7.2.26-1+ubuntu18.04.1+deb.sury.org+1',
+                    'value' => 'PHP/7.2.31',
                     'type' => self::TYPE_STRING,
                 ],
                 'content-type' => [
@@ -169,7 +169,7 @@ class User implements Endpoint
                     'type' => self::TYPE_STRING,
                 ],
                 'X-Powered-By' => [
-                    'value' => 'PHP/7.2.26-1+ubuntu18.04.1+deb.sury.org+1',
+                    'value' => 'PHP/7.2.31',
                     'type' => self::TYPE_STRING,
                 ],
                 'content-type' => [
@@ -295,7 +295,7 @@ class User implements Endpoint
                     'type' => self::TYPE_STRING,
                 ],
                 'X-Powered-By' => [
-                    'value' => 'PHP/7.2.26-1+ubuntu18.04.1+deb.sury.org+1',
+                    'value' => 'PHP/7.2.31',
                     'type' => self::TYPE_STRING,
                 ],
                 'content-type' => [

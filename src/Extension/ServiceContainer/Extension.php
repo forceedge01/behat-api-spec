@@ -69,9 +69,13 @@ class Extension implements ExtensionInterface
                         ->scalarNode('endpoint')->isRequired()->end()
                         ->scalarNode('path')->defaultNull()->end()
                         ->scalarNode('schema')->defaultNull()->end()
+                    ->end()
                 ->end()
-            ->end()
-        ->end();
+                ->arrayNode('options')
+                    ->children()
+                        ->scalarNode('stripSpaces')->defaultValue(false)->end()
+                ->end()
+            ->end();
     }
 
     /**
@@ -87,9 +91,15 @@ class Extension implements ExtensionInterface
         }
         $container->setParameter('genesis.apispec.config.specMappings', $config['specMappings']);
 
+        if (!isset($config['options'])) {
+            $config['options'] = [];
+        }
+        $container->setParameter('genesis.apispec.config.options', $config['options']);
+
         $definition = new Definition(Initializer::class, [
             '%genesis.apispec.config.baseUrl%',
             '%genesis.apispec.config.specMappings%',
+            '%genesis.apispec.config.options%',
         ]);
         $definition->addTag(ContextExtension::INITIALIZER_TAG);
         $container->setDefinition(self::CONTEXT_INITIALISER, $definition);

@@ -32,14 +32,28 @@ class ApiSpecContext implements Context
 
     private static $currentScenario;
 
+    private static $options = [];
+
     private $headers = [];
 
-    public static function setSpecOptions(string $baseUrl, array $mappings): void
+    private $body;
+
+    public static function setSpecOptions(string $baseUrl, array $mappings, array $options = ['stripSpaces' => false]): void
     {
         RequestHandler::setBaseUrl($baseUrl);
         EndpointProvider::setBaseNamespace($mappings['endpoint']);
         EndpointProvider::setBasePath($mappings['path'] ?? '');
         self::$mappings = $mappings;
+        self::$options = $options;
+    }
+
+    private function getOption($key)
+    {
+        if (isset(self::$options[$key])) {
+            return self::$options[$key];
+        }
+
+        return null;
     }
 
     public static function registerInternalTypes(): void
@@ -73,17 +87,31 @@ class ApiSpecContext implements Context
     }
 
     /**
+     * @Given I set the following body:
+     */
+    public function iSetTheFollowingBody(PyStringNode $body): void
+    {
+        $this->body = $this->getOption('stripSpaces') ? preg_replace('/\s+/', '', (string) $body) : (string) $body;
+    }
+
+    /**
      * @When I make a :method request to the :arg1 endpoint
      * @When I make a :method request to the :arg1 endpoint with body:
      * @When I make a :method request to the :arg1 endpoint with query string :queryString
      * @When I make a :method request to the :arg1 endpoint with query string :queryString and body:
      */
-    public function sendRequest($method, $endpoint, PyStringNode $body = null, string $queryString = null): void
+    public function sendRequest(string $method, string $endpoint, PyStringNode $body = null, string $queryString = null): void
     {
         $endpoint = EndpointProvider::getApiSpecEndpointClass($endpoint);
         $headers = array_merge($this->headers, $endpoint::getRequestHeaders());
         $url = $endpoint::getEndpoint() . ($queryString ? '?' . $queryString : '');
-        RequestHandler::sendRequest($method, $url, $headers, (string) $body);
+        if ($this->body) {
+            $body = $this->body;
+        } else {
+            $body = $this->getOption('stripSpaces') ? preg_replace('/\s+/', '', (string) $body) : (string) $body;    
+        }
+        
+        RequestHandler::sendRequest($method, $url, $headers, $body);
         $this->resetState();
 
         if (self::$sampleRequestFormat) {
@@ -91,7 +119,7 @@ class ApiSpecContext implements Context
                 self::$sampleRequestFormat,
                 $method,
                 $headers,
-                (string) $body,
+                $body,
                 $url,
                 RequestHandler::getBaseUrl()
             );
@@ -115,7 +143,7 @@ class ApiSpecContext implements Context
      * @Then I expect a :statusCode :apiSpec response expecting:
      * @Then I expect a :statusCode :apiSpec response
      */
-    public function validateResponse($statusCode, $apiSpec, PyStringNode $expectedResponse = null): void
+    public function validateResponse($statusCode, string $apiSpec, PyStringNode $expectedResponse = null): void
     {
         $statusCode = (int) $statusCode;
         $apiSpec = EndpointProvider::getApiSpecEndpointClass($apiSpec);
