@@ -16,7 +16,8 @@ Feature:
             """
 
     Scenario: 500 exception response
-        When I make a GET request to the "User" endpoint with query string "exception=1&error=message+is+bad&errorCode=503"
+        When I set the placeholder "message" to "message+is+bad"
+        And I make a GET request to the "User" endpoint with query string "exception=1&error={{message}}&errorCode=503"
         Then the response should match the snapshot
         And I expect a 500 "User" response
 
@@ -26,9 +27,10 @@ Feature:
         And I expect a 201 "User" response
 
     Scenario: 200 POST request to create user
-        When I make a POST request to the "User" endpoint with body:
+        When I set the placeholder "postcode" to "B23 7QQ"
+        And I make a POST request to the "User" endpoint with body:
             """
-            {"name": "Wahab Qureshi", "postcode": "B23 7QQ"}
+            {"name": "Wahab Qureshi", "postcode": "{{postcode}}"}
             """
         Then I expect a 200 "User" response
         And the response should match the snapshot

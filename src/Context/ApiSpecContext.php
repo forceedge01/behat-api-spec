@@ -10,6 +10,7 @@ use Genesis\BehatApiSpec\Contracts\Endpoint;
 use Genesis\BehatApiSpec\Entity\Schema;
 use Genesis\BehatApiSpec\Exception\RequiredPropertyMissingException;
 use Genesis\BehatApiSpec\Service\EndpointProvider;
+use Genesis\BehatApiSpec\Service\PlaceholderService;
 use Genesis\BehatApiSpec\Service\RequestHandler;
 use Genesis\BehatApiSpec\Service\SchemaGenerator;
 use Genesis\BehatApiSpec\Service\TypeValidator;
@@ -36,7 +37,37 @@ class ApiSpecContext implements Context
 
     private $headers = [];
 
-    private $body;
+    private $body = '';
+
+    private $preRequestCallable;
+
+    private $postRequestCallable;
+
+    /**
+     * @param string|null $preRequestCallable Static callable <class>::<method> Receives body and headers and expects return both.
+     * @param string|null $postRequestCallable Static callable <class>::<method> Receives body and headers
+     */
+    public function __construct(string $preRequestCallable = null, string $postRequestCallable = null)
+    {
+        $this->preRequestCallable = $preRequestCallable ?: function($body, $headers, $url){
+            return [
+                PlaceholderService::resolveInString($body),
+                $headers,
+                PlaceholderService::resolveInString($url)
+            ];
+        };
+        $this->postRequestCallable = $postRequestCallable ?: function($body, $headers){};
+    }
+
+    /**
+     * Prevents scenario bleeds.
+     *
+     * @afterScenario
+     */
+    public function resetPlaceholders()
+    {
+        PlaceholderService::reset();
+    }
 
     public static function setSpecOptions(string $baseUrl, array $mappings, array $options = ['stripSpaces' => false]): void
     {
@@ -70,6 +101,7 @@ class ApiSpecContext implements Context
 
     /**
      * @BeforeScenario
+     * @param mixed $scope
      */
     public function setCurrentScenario($scope)
     {
@@ -105,13 +137,18 @@ class ApiSpecContext implements Context
         $endpoint = EndpointProvider::getApiSpecEndpointClass($endpoint);
         $headers = array_merge($this->headers, $endpoint::getRequestHeaders());
         $url = $endpoint::getEndpoint() . ($queryString ? '?' . $queryString : '');
-        if ($this->body) {
-            $body = $this->body;
+        if ($body) {
+            $body = $this->getOption('stripSpaces') ? preg_replace('/\s+/', '', (string) $body) : (string) $body;
         } else {
-            $body = $this->getOption('stripSpaces') ? preg_replace('/\s+/', '', (string) $body) : (string) $body;    
+            $body = $this->body;
         }
-        
+
+        $preRequestCallable = $this->preRequestCallable;
+        list ($body, $headers, $url) = $preRequestCallable($body, $headers, $url);
         RequestHandler::sendRequest($method, $url, $headers, $body);
+        $postRequestCallable = $this->postRequestCallable;
+        $postRequestCallable(RequestHandler::getResponseBody(), RequestHandler::getHeaders());
+
         $this->resetState();
 
         if (self::$sampleRequestFormat) {
@@ -128,6 +165,7 @@ class ApiSpecContext implements Context
 
     /**
      * @Then I expect a :statusCode status code
+     * @param mixed $statusCode
      */
     public function validateStatusCode($statusCode)
     {
@@ -140,8 +178,17 @@ class ApiSpecContext implements Context
     }
 
     /**
+     * @Then I should see the response
+     */
+    public function seeTheResponse()
+    {
+        echo RequestHandler::getResponseBody();
+    }
+
+    /**
      * @Then I expect a :statusCode :apiSpec response expecting:
      * @Then I expect a :statusCode :apiSpec response
+     * @param mixed $statusCode
      */
     public function validateResponse($statusCode, string $apiSpec, PyStringNode $expectedResponse = null): void
     {
@@ -209,6 +256,7 @@ class ApiSpecContext implements Context
     public function resetState()
     {
         $this->headers = [];
+        $this->body = '';
     }
 
     private function validate($body, array $schema): void

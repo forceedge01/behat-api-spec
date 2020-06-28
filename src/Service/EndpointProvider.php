@@ -22,7 +22,7 @@ class EndpointProvider
         self::$basePath = $path;
     }
 
-    public function getApiSpecEndpointClass(string $class): string
+    public static function getApiSpecEndpointClass(string $class): string
     {
         return self::$baseNamespace . $class;
     }
