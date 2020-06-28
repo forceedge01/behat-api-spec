@@ -6,6 +6,7 @@ use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Testwork\Cli\ServiceContainer\CliExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
+use Genesis\BehatApiSpec\Command\EndpointGenerate;
 use Genesis\BehatApiSpec\Command\SampleRequest;
 use Genesis\BehatApiSpec\Command\UpdateSnapshots;
 use Genesis\BehatApiSpec\Extension\Initializer\Initializer;
@@ -105,6 +106,7 @@ class Extension implements ExtensionInterface
         $container->setDefinition(self::CONTEXT_INITIALISER, $definition);
         $this->addUpdateSnapshotsCommand($container);
         $this->addSampleRequestCommand($container);
+        $this->addEndpointGenerateCommand($container, $config['specMappings']);
     }
 
     private function addUpdateSnapshotsCommand($container)
@@ -125,5 +127,16 @@ class Extension implements ExtensionInterface
         );
         $definition->addTag(CliExtension::CONTROLLER_TAG, array('priority' => 1));
         $container->setDefinition(CliExtension::CONTROLLER_TAG . '.apispec.sampleRequest', $definition);
+    }
+
+    private function addEndpointGenerateCommand($container, $specMappings)
+    {
+        $definition = new Definition(
+            EndpointGenerate::class,
+            array(new Reference(self::CONTEXT_INITIALISER)),
+            array($specMappings)
+        );
+        $definition->addTag(CliExtension::CONTROLLER_TAG, array('priority' => 1));
+        $container->setDefinition(CliExtension::CONTROLLER_TAG . '.apispec.endpointGenerate', $definition);
     }
 }
