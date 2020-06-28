@@ -24,6 +24,11 @@ class Initializer implements ContextInitializer
         $this->options = $options;
     }
 
+    public function getSpecMappings(): array
+    {
+        return $this->specMappings;
+    }
+
     public function initializeContext(Context $context)
     {
         if ($context instanceof ApiSpecContext) {

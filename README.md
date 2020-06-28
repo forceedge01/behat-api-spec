@@ -28,7 +28,13 @@ default:
 Basic overview
 --------------
 
-Create an endpoint file
+You can generate an endpoint file using the --endpoint-generate option. Simply run the following command for an interactive shell:
+
+```bash
+./vendor/bin/behat --endpoint-generate
+```
+
+Manually create an endpoint file
 ```php
 <?php
 

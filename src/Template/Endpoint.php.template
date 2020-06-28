@@ -1,0 +1,18 @@
+<?php
+
+namespace {{namespace}};
+
+use Genesis\BehatApiSpec\Contracts\Endpoint;
+
+class {{name}} implements Endpoint
+{
+    public static function getEndpoint(): string
+    {
+        return '{{uri}}';
+    }
+
+    public static function getRequestHeaders(): array
+    {
+        return [];
+    }
+}
