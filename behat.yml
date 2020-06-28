@@ -4,8 +4,10 @@ default:
       paths:
         - tests/Features/
       contexts:
-        - Genesis\BehatApiSpec\Context\ApiSpecContext
+        - Genesis\BehatApiSpec\Context\ApiSpecContext:
+            postRequestCallable: 'Genesis\ApiSpecTests\Features\Bootstrap\FeatureContext::setPlaceholders'
         - FailAid\Context\FailureContext
+        - Genesis\ApiSpecTests\Features\Bootstrap\FeatureContext
   extensions:
     Imbo\BehatApiExtension: ~
     Cjm\Behat\LocalWebserverExtension:
@@ -18,6 +20,16 @@ default:
         endpoint: \Genesis\ApiSpecTests\Features\ApiSpec\Endpoint\
         path: ./tests/Features/ApiSpec/Endpoint/
     FailAid\Extension:
+      output:
+        url: false
+        status: false
+        tags: false
+        feature: false
+        context: false
+        screenshot: false
+        driver: false
+        rerun: false
+        debugBarSelectors: false
       screenshot:
         directory: ./features/failures
         mode: default

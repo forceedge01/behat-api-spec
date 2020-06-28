@@ -133,6 +133,53 @@ Following on from this the `And the response should match the snapshot` will gen
 
 ```
 
+Placeholders
+------
+
+All requests go call on the PlaceHolderService::resolveInString method with the body and url to replace any placeholders (format - `{{placeholder_name}}`) you may have set using the default preRequestCallable hook which is overridable (See hooks section). To add placeholders, you can use the PlaceholderService like so:
+
+```php
+
+    public function ...
+    {
+        $value = ...;
+        PlaceholderService::add($name, $value);
+
+        PlaceHolderService::getValue($name); // returns $value;
+    }
+
+```
+
+Placeholders are reset after every scenario to prevent test session bleed. Example usage in feature file:
+
+```gherkin
+    Scenario: 200 user response
+        When I make a POST request to the "User" endpoint with body:
+            """
+                {"status": "{{status_failed}}"}
+            """
+```
+
+In the above example if you've set `PlaceHolderService::add('status_failure', -1)` then expect `{"status": "-1"}` to be sent as the body. Note values have to scalar to be part of the body.
+
+Hooks
+------
+
+Pre request and post request hooks can be configured per context configuration in the behat.yml file like so:
+
+```
+behat.yml file
+
+```yaml
+default:
+  suites:
+    default:
+      contexts:
+        - Genesis\BehatApiSpec\Context\ApiSpecContext:
+            preRequestCallable: 'MyClass::preRequestStaticCallable'
+            postRequestCallable: 'MyClass::postRequestStaticCallable'
+```
+
 Generating sample requests
 --------------------------
 
