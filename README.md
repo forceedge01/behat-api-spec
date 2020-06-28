@@ -167,10 +167,9 @@ Hooks
 
 Pre request and post request hooks can be configured per context configuration in the behat.yml file like so:
 
-```
-behat.yml file
-
 ```yaml
+#behat.yml file
+
 default:
   suites:
     default:
@@ -187,13 +186,13 @@ If you use the step definition `When I make a POST request to "User" endpoint` t
 
 `vendor/bin/behat --sample-request=curl`
 
-```
-Scenario: 200 user response
-    Given I set the following headers:
-      | content-type | application/json |
-      | accept       | en               |
-    When I make a GET request to "User" endpoint
-      │ curl -X GET --header 'content-type: application/json' --header 'accept: text/html' --header 'accept-language: en' 'http://localhost:8090/index.php/users'
+```yaml
+    Scenario: 200 user response
+        Given I set the following headers:
+          | content-type | application/json |
+          | accept       | en               |
+        When I make a GET request to "User" endpoint
+          │ curl -X GET --header 'content-type: application/json' --header 'accept: text/html' --header 'accept-language: en' 'http://localhost:8090/index.php/users'
 ```
 
 Note the curl command generated below the step definition.
