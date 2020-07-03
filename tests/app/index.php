@@ -7,6 +7,8 @@ if (isset($_GET['exception'])) {
         'success' => false,
         'error' => 'Something went wrongsssss huwaaa`zi'
     ]);
+} elseif ($_GET['empty']) {
+    die();
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     http_response_code(200);
     $data = json_encode([

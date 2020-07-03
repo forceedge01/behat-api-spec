@@ -13,6 +13,10 @@ class FeatureContext implements Context
     {
         $body = json_decode(RequestHandler::getResponseBody(), true);
 
+        if (!$body) {
+            return;
+        }
+
         foreach ($body as $key => $value) {
             PlaceholderService::add($key, $value);
         }
