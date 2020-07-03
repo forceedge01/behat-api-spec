@@ -2,6 +2,7 @@
 
 namespace Genesis\BehatApiSpec\Traits;
 
+use Exception;
 use Genesis\BehatApiSpec\Service\PlaceholderService;
 
 trait VersionTrait
@@ -19,8 +20,16 @@ trait VersionTrait
     /**
      * @return string
      */
-    public static function getVersion()
+    public static function getVersion($default = null)
     {
-        return PlaceholderService::get('API_VERSION');
+        try {
+            return PlaceholderService::getValue('API_VERSION');
+        } catch (Exception $e) {
+            if ($default) {
+                return $default;    
+            }
+            
+            throw $e;
+        }
     }
 }

@@ -168,6 +168,19 @@ Placeholders are reset after every scenario to prevent test session bleed. Examp
 
 In the above example if you've set `PlaceHolderService::add('status_failure', -1)` then expect `{"status": "-1"}` to be sent as the body. Note values have to scalar to be part of the body.
 
+Multiple versions
+------
+
+You can set the version of the API to be used from the feature files or by creating a new endpoint file. To set it from the feature file:
+
+```gherkin
+    ...
+    Given I use version "1" of the API
+    ...
+```
+
+This will allow you to retrieve the version set through the ApiSpecContext::getVersion() method in any file. For example setting it in the Endpoint getRequestHeaders method. The method also accepts a default API version if none is set. The version is also available as a placeholder `{{API_VERSION}}` placeholder.
+
 Hooks
 ------
 
