@@ -1,6 +1,6 @@
 {
     "name": "genesis/behat-api-spec",
-    "description": "Generate api specs/snapshots in a heartbeat.",
+    "description": "Maintain your APIs with ease using snapshot testing.",
     "keywords": ["API testing", "testing", "behat api", "api snapshot", "snapshot", "snapshot testing"],
     "license": "MIT",
     "authors": [
