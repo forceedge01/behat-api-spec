@@ -6,4 +6,5 @@ services:
       dockerfile: Dockerfile
       context: .
     volumes:
+        - /app/vendor
         - ./:/app
