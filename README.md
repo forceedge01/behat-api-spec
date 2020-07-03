@@ -1,4 +1,4 @@
-API Spec
+API Spec [![Build Status](https://travis-ci.com/forceedge01/behat-api-spec.svg?branch=master)](https://travis-ci.com/forceedge01/behat-api-spec) [![License](https://poser.pugx.org/genesis/behat-api-spec/license)](https://packagist.org/packages/genesis/behat-api-spec)
 =========
 
 Got API's but no time to put automated tests around it? Already have automated tests but are hard to maintain? Here is an effective automated solution that will prevent regression and maintain itself on demand.
