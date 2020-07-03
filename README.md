@@ -6,7 +6,7 @@ Got API's but no time to put automated tests around it? Already have automated t
 Installation
 ------------
 
-```
+```bash
 composer require genesis/behat-api-spec
 ```
 
@@ -179,7 +179,7 @@ You can set the version of the API to be used from the feature files or by creat
     ...
 ```
 
-This will allow you to retrieve the version set through the ApiSpecContext::getVersion() method in any file. For example setting it in the Endpoint getRequestHeaders method. The method also accepts a default API version if none is set. The version is also available as a placeholder `{{API_VERSION}}` placeholder.
+This will allow you to retrieve the version set through the `ApiSpecContext::getVersion()` method in any file. For example setting it in the Endpoint getRequestHeaders method. The method also accepts a default API version if none is set. The version is also available as a placeholder `{{API_VERSION}}` placeholder.
 
 Hooks
 ------
