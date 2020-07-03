@@ -34,4 +34,9 @@ Feature:
             """
         Then I expect a 200 "User" response
         And the response should match the snapshot
+
+    Scenario: Check empty response to work
+        Given I use version "1" of the API
+        When I make a GET request to the "User" endpoint with query string "empty=true"
+        Then the response should be empty
         

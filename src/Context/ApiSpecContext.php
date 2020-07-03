@@ -10,6 +10,7 @@ use Genesis\BehatApiSpec\Contracts\Endpoint;
 use Genesis\BehatApiSpec\Entity\Schema;
 use Genesis\BehatApiSpec\Exception\RequiredPropertyMissingException;
 use Genesis\BehatApiSpec\Service\EndpointProvider;
+use Genesis\BehatApiSpec\Service\Output;
 use Genesis\BehatApiSpec\Service\PlaceholderService;
 use Genesis\BehatApiSpec\Service\RequestHandler;
 use Genesis\BehatApiSpec\Service\SchemaGenerator;
@@ -18,6 +19,7 @@ use Genesis\BehatApiSpec\Traits\JsonValidateTrait;
 use Genesis\BehatApiSpec\Traits\SampleRequestGeneratorTrait;
 use Genesis\BehatApiSpec\Traits\SchemaGeneratorTrait;
 use Genesis\BehatApiSpec\Traits\SnapshotTrait;
+use Genesis\BehatApiSpec\Traits\VersionTrait;
 use Genesis\BehatApiSpec\Validators;
 use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\Assert;
@@ -28,6 +30,7 @@ class ApiSpecContext implements Context
     use SnapshotTrait;
     use SampleRequestGeneratorTrait;
     use SchemaGeneratorTrait;
+    use VersionTrait;
 
     private static $mappings;
 
@@ -183,6 +186,16 @@ class ApiSpecContext implements Context
     public function seeTheResponse()
     {
         echo RequestHandler::getResponseBody();
+    }
+
+    /**
+     * @Then the response should be empty
+     */
+    public function theResponseShouldBeEmpty()
+    {
+        $actualResponse = RequestHandler::getResponseBody();
+
+        Assert::assertEquals(null, $actualResponse, 'Expected the response to be empty');
     }
 
     /**
