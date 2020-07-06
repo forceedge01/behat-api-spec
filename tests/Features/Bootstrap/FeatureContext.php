@@ -25,15 +25,6 @@ class FeatureContext implements Context
     }
 
     /**
-     * @afterStep
-     */
-    public function setFailureStates()
-    {
-        FailureContext::addState('url', RequestHandler::getUri());
-        FailureContext::addState('request body', RequestHandler::getRequestBody());
-    }
-
-    /**
      * @When I set the placeholder :arg1 to :arg2
      * @param mixed $arg1
      * @param mixed $arg2
