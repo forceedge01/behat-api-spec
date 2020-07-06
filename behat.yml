@@ -21,33 +21,7 @@ default:
         path: ./tests/Features/ApiSpec/Endpoint/
     FailAid\Extension:
       output:
-        url: false
-        status: false
-        tags: false
-        feature: false
-        context: false
-        screenshot: false
-        driver: false
-        rerun: false
-        debugBarSelectors: false
-      screenshot:
-        directory: ./features/failures
-        mode: default
-        autoClean: false
-        size: 1444x1280
-        # hostDirectory: /home/abdul/Projects/personal/behat-fail-aid/features/failures
-        hostUrl: http://ci/failures/$USER/
-      debugBarSelectors:
-        message: '#debugBar .message'
-        queries: '#debugBar .queries'
-      siteFilters:
-        '/images/': 'http://dev.environment/images/'
-        '/js/': 'http://dev.environment/js/'
-      trackJs:
-        errors: true
-        warns: true
-        logs: true
-        trim: 1000
+        api: true
     Behat\MinkExtension:
       base_url: 'http://localhost:8111'
       sessions:
