@@ -6,6 +6,7 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Exception;
+use FailAid\Context\FailureContext;
 use Genesis\BehatApiSpec\Contracts\Endpoint;
 use Genesis\BehatApiSpec\Entity\Schema;
 use Genesis\BehatApiSpec\Exception\RequiredPropertyMissingException;
@@ -35,6 +36,8 @@ class ApiSpecContext implements Context
 
     private static $options = [];
 
+    private static $setFailStates = false;
+
     private $headers = [];
 
     private $body = '';
@@ -57,6 +60,11 @@ class ApiSpecContext implements Context
             ];
         };
         $this->postRequestCallable = $postRequestCallable ?: function($body, $headers){};
+    }
+
+    public function setFailStates($bool)
+    {
+        self::$setFailStates = $bool;
     }
 
     /**
@@ -150,6 +158,15 @@ class ApiSpecContext implements Context
         $postRequestCallable(RequestHandler::getResponseBody(), RequestHandler::getHeaders());
 
         $this->resetState();
+
+        if (self::$setFailStates) {
+            FailureContext::addState('url', RequestHandler::getUri() .'::'. RequestHandler::getStatusCode());
+            FailureContext::addState('method', RequestHandler::getMethod());
+            FailureContext::addState('request headers', $this->deepImplode(': ', RequestHandler::getRequestHeaders()));
+            FailureContext::addState('request body', RequestHandler::getRequestBody());
+            FailureContext::addState('response headers', $this->deepImplode(': ', RequestHandler::getHeaders()));
+            FailureContext::addState('response body', RequestHandler::getResponseBody() . PHP_EOL);
+        }
 
         if (self::$sampleRequestFormat) {
             $this->handleSampleRequest(
@@ -332,5 +349,20 @@ class ApiSpecContext implements Context
 
         return false;
     }
-}
 
+    /**
+     * @param string $glue
+     * @param array $values
+     *
+     * @return string
+     */
+    private function deepImplode(string $glue, array $values)
+    {
+        $string = '';
+        foreach ($values as $name => $value) {
+            $string .= $name . $glue . $value[0] . PHP_EOL;
+        }
+
+        return $string;
+    }
+}

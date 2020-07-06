@@ -31,9 +31,13 @@ class Initializer implements ContextInitializer
 
     public function initializeContext(Context $context)
     {
+        if (is_a($context, 'FailAid\\Context\\FailureContext')) {
+            ApiSpecContext::setFailStates(true);
+        }
+
         if ($context instanceof ApiSpecContext) {
-            $context::setSpecOptions($this->baseUrl, $this->specMappings, $this->options);
-            $context::registerInternalTypes();
+            ApiSpecContext::setSpecOptions($this->baseUrl, $this->specMappings, $this->options);
+            ApiSpecContext::registerInternalTypes();
         }
     }
 }
