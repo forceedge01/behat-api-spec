@@ -11,7 +11,6 @@ use Genesis\BehatApiSpec\Contracts\Endpoint;
 use Genesis\BehatApiSpec\Entity\Schema;
 use Genesis\BehatApiSpec\Exception\RequiredPropertyMissingException;
 use Genesis\BehatApiSpec\Service\EndpointProvider;
-use Genesis\BehatApiSpec\Service\Output;
 use Genesis\BehatApiSpec\Service\PlaceholderService;
 use Genesis\BehatApiSpec\Service\RequestHandler;
 use Genesis\BehatApiSpec\Service\SchemaGenerator;
@@ -62,10 +61,10 @@ class ApiSpecContext implements Context
                 PlaceholderService::resolveInString($url)
             ];
         };
-        $this->postRequestCallable = $postRequestCallable ?: function($body, $headers){};
+        $this->postRequestCallable = $postRequestCallable ?: function($body, $headers): void{};
     }
 
-    public function setFailStates($bool)
+    public static function setFailStates($bool): void
     {
         self::$setFailStates = $bool;
     }
@@ -75,7 +74,7 @@ class ApiSpecContext implements Context
      *
      * @afterScenario
      */
-    public function resetPlaceholders()
+    public function resetPlaceholders(): void
     {
         PlaceholderService::reset();
     }
@@ -114,7 +113,7 @@ class ApiSpecContext implements Context
      * @BeforeScenario
      * @param mixed $scope
      */
-    public function setCurrentScenario($scope)
+    public function setCurrentScenario($scope): void
     {
         self::$currentScenario = $scope;
     }
@@ -187,7 +186,7 @@ class ApiSpecContext implements Context
      * @Then I expect a :statusCode status code
      * @param mixed $statusCode
      */
-    public function validateStatusCode($statusCode)
+    public function validateStatusCode($statusCode): void
     {
         $statusCode = (int) $statusCode;
         Assert::assertSame(
@@ -200,7 +199,7 @@ class ApiSpecContext implements Context
     /**
      * @Then I should see the response
      */
-    public function seeTheResponse()
+    public function seeTheResponse(): void
     {
         echo RequestHandler::getResponseBody();
     }
@@ -208,7 +207,7 @@ class ApiSpecContext implements Context
     /**
      * @Then the response should be empty
      */
-    public function theResponseShouldBeEmpty()
+    public function theResponseShouldBeEmpty(): void
     {
         $actualResponse = RequestHandler::getResponseBody();
 
@@ -283,7 +282,7 @@ class ApiSpecContext implements Context
         }
     }
 
-    public function resetState()
+    public function resetState(): void
     {
         $this->headers = [];
         $this->body = '';
@@ -331,7 +330,7 @@ class ApiSpecContext implements Context
         }
     }
 
-    private function isPropertyOptional(array $typeDetails)
+    private function isPropertyOptional(array $typeDetails): bool
     {
         if (isset($typeDetails['optional']) && $typeDetails['optional'] === true) {
             return true;
@@ -340,7 +339,7 @@ class ApiSpecContext implements Context
         return false;
     }
 
-    private function enforceTypeInSchema(array $typeDetails)
+    private function enforceTypeInSchema(array $typeDetails): void
     {
         if (!array_key_exists('type', $typeDetails)) {
             throw new Exception(sprintf(
@@ -369,7 +368,7 @@ class ApiSpecContext implements Context
      *
      * @return string
      */
-    private function deepImplode(string $glue, array $values)
+    private function deepImplode(string $glue, array $values): string
     {
         $string = '';
         foreach ($values as $name => $value) {
