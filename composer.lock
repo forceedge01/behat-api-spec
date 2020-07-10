@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3d2e20864b65495825df89c7bc36350",
+    "content-hash": "14c8c3aefb427601949972077e86b471",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -3733,28 +3733,28 @@
         },
         {
             "name": "genesis/behat-fail-aid",
-            "version": "3.5.1",
+            "version": "3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/forceedge01/behat-fail-aid.git",
-                "reference": "defc7d3fed3632d6bb492a917ff2baa81d92c7df"
+                "reference": "bbdc340d0c843b000c8edc5d0d4f0d62a00a9b4f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/forceedge01/behat-fail-aid/zipball/defc7d3fed3632d6bb492a917ff2baa81d92c7df",
-                "reference": "defc7d3fed3632d6bb492a917ff2baa81d92c7df",
+                "url": "https://api.github.com/repos/forceedge01/behat-fail-aid/zipball/bbdc340d0c843b000c8edc5d0d4f0d62a00a9b4f",
+                "reference": "bbdc340d0c843b000c8edc5d0d4f0d62a00a9b4f",
                 "shasum": ""
             },
             "require": {
                 "behat/mink": "*@stable",
-                "behat/mink-extension": "~2.0@stable",
-                "behat/mink-selenium2-driver": "^1.3"
+                "behat/mink-extension": "~2.0",
+                "behat/mink-selenium2-driver": "~1.3"
             },
             "require-dev": {
                 "behat/behat": "^3.5",
                 "behat/mink-goutte-driver": "^1.2",
                 "ciaranmcnulty/behat-localwebserverextension": "^1.1",
-                "phpunit/phpunit": "4.*"
+                "phpunit/phpunit": "~4.0"
             },
             "suggest": {
                 "genesis/db-backup-restore": "Quickly backup and restore your database.",
@@ -3787,7 +3787,7 @@
                 "fail",
                 "screenshot"
             ],
-            "time": "2020-03-27T11:53:19+00:00"
+            "time": "2020-07-06T22:05:31+00:00"
         },
         {
             "name": "instaclick/php-webdriver",

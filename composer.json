@@ -16,7 +16,7 @@
         "phpunit/phpunit": "8.0"
     },
     "require-dev": {
-        "genesis/behat-fail-aid": "~3.5.0",
+        "genesis/behat-fail-aid": "^3.7",
         "behat/mink-extension": "*",
         "ciaranmcnulty/behat-localwebserverextension": "^1.1"
     },
