@@ -6,7 +6,7 @@ class PlaceholderService
 {
     private static $placeholders = [];
 
-    public static function reset()
+    public static function reset(): void
     {
         self::$placeholders = [];
     }
@@ -20,7 +20,7 @@ class PlaceholderService
      *
      * @return string
      */
-    public function resolveInString(string $string, callable $closure = null): string
+    public static function resolveInString(string $string, callable $closure = null): string
     {
         $matches = [];
 
@@ -50,7 +50,7 @@ class PlaceholderService
         return $string;
     }
 
-    public static function add(string $name, $value)
+    public static function add(string $name, $value): void
     {
         self::$placeholders[$name] = $value;
     }
