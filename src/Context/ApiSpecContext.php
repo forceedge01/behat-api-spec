@@ -188,7 +188,7 @@ class ApiSpecContext implements Context
      */
     public function validateStatusCode($statusCode): void
     {
-        $statusCode = (int) $statusCode;
+        $statusCode = intval($statusCode);
         Assert::assertSame(
             $statusCode,
             RequestHandler::getStatusCode(),

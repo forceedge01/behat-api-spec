@@ -1,7 +1,7 @@
 <?php return [
 
     '500 exception response' =>
-        '{"success":false,"error":"Something went wrongsssss huwaaa`zi"}',
+        '/^\{"success"\:false,"error"\:"Something went wrongsssss huwaaa`zi"\}$/',
 
 
     '201 get request\'si in spade' =>

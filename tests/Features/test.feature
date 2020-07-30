@@ -18,7 +18,7 @@ Feature:
     Scenario: 500 exception response
         When I set the placeholder "message" to "message+is+bad"
         And I make a GET request to the "User" endpoint with query string "exception=1&error={{message}}&errorCode=503"
-        Then the response should match the snapshot
+        Then the response should match the snapshot pattern
         And I expect a 500 "User" response
 
     Scenario: 201 Get request'si in spade
