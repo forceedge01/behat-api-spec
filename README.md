@@ -3,6 +3,19 @@ API Spec [![Build Status](https://travis-ci.com/forceedge01/behat-api-spec.svg?b
 
 Got API's but no time to put automated tests around it? Already have automated tests but are hard to maintain? Here is an effective automated solution that will prevent regression and maintain itself on demand.
 
+Release notes
+----------
+
+Major:
+- Snapshot testing.
+
+Minor:
+- Using 'snapshot pattern' step defintion produces a regex snapshot.
+
+Patch:
+- Running single scenario does not affect other scenario snapshots.
+
+
 Installation
 ------------
 
