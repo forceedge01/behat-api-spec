@@ -3,6 +3,7 @@
 namespace Genesis\BehatApiSpec\Validators;
 
 use Genesis\BehatApiSpec\Contracts\Validator;
+use Genesis\BehatApiSpec\Exception\RegularExpressionMismatchException;
 use PHPUnit\Framework\Assert;
 
 class StringValidator implements Validator
@@ -12,7 +13,11 @@ class StringValidator implements Validator
         Assert::assertIsString($value);
 
         if (isset($details['pattern'])) {
-            Assert::assertRegExp($details['pattern'], $value);
+            try {
+                Assert::assertRegExp($details['pattern'], $value);
+            } catch (\Exception $e) {
+                throw new RegularExpressionMismatchException($value, $details['pattern']);
+            }
         }
 
         if (isset($details['value'])) {

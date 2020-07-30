@@ -13,7 +13,7 @@ class Snapshot
             throw new Exception('In order to create a snapshot, please declare scenario title.');
         }
 
-        return strtolower(basename($title));
+        return strtolower($title);
     }
 
     public static function getSnapshotPath($currentScenario): string
@@ -24,8 +24,16 @@ class Snapshot
             . DIRECTORY_SEPARATOR
             . '__snapshots__'
             . DIRECTORY_SEPARATOR
-            . strtolower(str_replace([' '], '-', basename($featurePath)))
+            . basename($featurePath)
             . '.snap.php';
+    }
+
+    public static function getFeaturePath($snapshotPath): ?string
+    {
+        $path = pathinfo($snapshotPath);
+        $feature = $path['dirname'] . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . trim($path['basename'], '.snap.php');
+
+        return realpath($feature);
     }
 
     public static function createSnapshotDir(string $dir)

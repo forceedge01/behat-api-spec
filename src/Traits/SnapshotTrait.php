@@ -50,7 +50,7 @@ trait SnapshotTrait
                 }
 
                 echo 'Updating snapshot... ';
-                Snapshot::save($path, $title, $actualResponse);
+                Snapshot::save($path, $title, '/^' . preg_quote($actualResponse, '/') . '$/');
                 self::$updatedSnapshots++;
             }
         } else {
@@ -129,7 +129,13 @@ trait SnapshotTrait
             $storedSnapshots = Snapshot::getSnapshots($snapshotFile);
             foreach ($storedSnapshots as $scenario => $storedSnapshot) {
                 if (!in_array($scenario, $snapshots)) {
-                    $obsoleteSnapshots[$snapshotFile][] = $scenario;
+                    $featureFile = Snapshot::getFeaturePath($snapshotFile);
+                    if ($featureFile) {
+                        if (!preg_match('/^\s*Scenario\s*:\s*' . preg_quote($scenario).'$/im', file_get_contents($featureFile))) {
+                            echo '^\s*Scenario\s*:\s*' . preg_quote($scenario).'$' . PHP_EOL;
+                            $obsoleteSnapshots[$snapshotFile][] = $scenario;
+                        }
+                    }
                 }
             }
         }
@@ -138,8 +144,10 @@ trait SnapshotTrait
             echo 'Obsolete files:' . PHP_EOL;
             if (self::$updateSnapshots) {
                 echo 'Deleting obsolete files...' . PHP_EOL . PHP_EOL;
-                foreach ($obsoleteFiles as $file) {
-                    echo $file . PHP_EOL;
+            }
+            foreach ($obsoleteFiles as $file) {
+                echo $file . PHP_EOL;
+                if (self::$updateSnapshots) {
                     unlink($file);
                 }
             }
@@ -149,9 +157,11 @@ trait SnapshotTrait
             echo 'Obsolete snapshots:' . PHP_EOL;
             if (self::$updateSnapshots) {
                 echo 'Removing snapshots...' . PHP_EOL . PHP_EOL;
-                foreach ($obsoleteSnapshots as $file => $snapshots) {
-                    foreach ($snapshots as $snapshot) {
-                        echo $snapshot . PHP_EOL;
+            }
+            foreach ($obsoleteSnapshots as $file => $snapshots) {
+                foreach ($snapshots as $snapshot) {
+                    echo $snapshot . PHP_EOL;
+                    if (self::$updateSnapshots) {
                         Snapshot::remove($file, $snapshot);
                     }
                 }
