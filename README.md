@@ -11,6 +11,7 @@ Major:
 
 Minor:
 - Using 'snapshot pattern' step defintion produces a regex snapshot.
+- Check multiple json keys in response with one step definition.
 
 Patch:
 - Running single scenario does not affect other scenario snapshots.
@@ -80,6 +81,9 @@ Scenario: 200 user response
     When I make a POST request to the "User" endpoint
     Then I expect a 500 "User" response
     And the response should match the snapshot
+    And I expect the following content in the JSON response:
+       | key1.subkey1 | value1 |
+       | key1.subkey2 | value2 |
 ```
 
 The `When I make a POST request to "User" endpoint` will initially auto scaffold schema using the response and insert it into the endpoint file you've declared above. On subsequent calls this schema will be used to validate the response, providing protection against regression. A sample schema can be as follows for the response of a GET request with 200 response `{"success": false, "error": "Something went wrong."}`:

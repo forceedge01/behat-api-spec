@@ -14,6 +14,12 @@ Feature:
             """
             "15"
             """
+        And I expect the following content in the JSON response:
+            | success     | true                         |
+            | name        | "Wahab Qureshi's armageddon" |
+            | address.jug | "15"                         |
+            | address.0   | "first"                      |
+            | address.1   | "third"                      |
 
     Scenario: 500 exception response
         When I set the placeholder "message" to "message+is+bad"
